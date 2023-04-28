@@ -1,7 +1,6 @@
-import { BaseQueryBuilder } from "../base-query-builder";
-import { cond } from "../operators/cond";
-import { eq1 } from "../operators/eq";
-import { Table } from "../types/wrapper";
+import { BaseQueryBuilder } from "../base/base-query-builder";
+import { cond } from "../types/cond";
+import { eq1 } from "../types/expr";
 
 class User {
   id: number;
