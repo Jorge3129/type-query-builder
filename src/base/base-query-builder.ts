@@ -1,11 +1,15 @@
-import { Constr } from "../types/class-constructor";
-import { Cond } from "../types/cond";
-import { MergeContext } from "../types/merge-context";
+import { Constr } from "./types/class-constructor";
+import { Cond } from "./types/cond";
+import { MergeContext } from "./types/merge-context";
+
+class SelectQueryTree {
+  selectClause: any[] = [];
+  fromClause: { tableName: string; alias: string }[] = [];
+  whereClause: any[] = [];
+}
 
 export class BaseQueryBuilder<Context extends {} = {}> {
-  private query: string = "";
-
-  private context: Context = {} as Context;
+  constructor(private queryTree: SelectQueryTree = new SelectQueryTree()) {}
 
   from<T, A extends string>(
     table: Constr<T>,
@@ -13,6 +17,11 @@ export class BaseQueryBuilder<Context extends {} = {}> {
   ): BaseQueryBuilder<{
     [K in keyof MergeContext<Context, A, T>]: MergeContext<Context, A, T>[K];
   }> {
+    this.queryTree.fromClause.push({
+      tableName: table.name,
+      alias,
+    });
+
     return this as any as BaseQueryBuilder<{
       [K in keyof MergeContext<Context, A, T>]: MergeContext<Context, A, T>[K];
     }>;
@@ -22,7 +31,11 @@ export class BaseQueryBuilder<Context extends {} = {}> {
     return this as BaseQueryBuilder<Context>;
   }
 
-  build(): string {
-    return this.query.trim();
+  getTree() {
+    return this.queryTree;
+  }
+
+  build() {
+    return this.queryTree;
   }
 }

@@ -1,6 +1,6 @@
-import { Constr } from "../types/class-constructor";
-import { Cond } from "../types/cond";
-import { MergeContext } from "../types/merge-context";
+import { Constr } from "../f/class-constructor";
+import { Cond } from "../f/cond";
+import { MergeContext } from "../f/merge-context";
 
 export class BaseQueryBuilder<Context extends {} = {}> {
   private query: string = "";
