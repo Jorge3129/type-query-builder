@@ -1,4 +1,4 @@
-import { Table } from "./wrapper";
+import { Table } from "./table";
 
 export type MergeContext<
   Context extends {},

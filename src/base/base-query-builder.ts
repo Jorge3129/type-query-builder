@@ -1,11 +1,14 @@
+import { createBuilder } from "./query-proxy/builder-proxy";
+import { PathItem, buildPathItem } from "./query-proxy/path-item";
 import { Constr } from "./types/class-constructor";
-import { Cond } from "./types/cond";
+import { ExprBuilder, Like } from "./types/expr";
 import { MergeContext } from "./types/merge-context";
+import { opDict } from "./types/operators";
 
 class SelectQueryTree {
   selectClause: any[] = [];
   fromClause: { tableName: string; alias: string }[] = [];
-  whereClause: any[] = [];
+  whereClause?: PathItem;
 }
 
 export class BaseQueryBuilder<Context extends {} = {}> {
@@ -27,7 +30,13 @@ export class BaseQueryBuilder<Context extends {} = {}> {
     }>;
   }
 
-  where(condition: Cond<Context>): BaseQueryBuilder<Context> {
+  where(
+    condition: (context: Context) => ExprBuilder<boolean>
+  ): BaseQueryBuilder<Context> {
+    const res = condition(createBuilder(opDict)).build();
+
+    this.queryTree.whereClause = res;
+
     return this as BaseQueryBuilder<Context>;
   }
 
@@ -35,7 +44,28 @@ export class BaseQueryBuilder<Context extends {} = {}> {
     return this.queryTree;
   }
 
-  build() {
-    return this.queryTree;
+  build(): string {
+    const select = `SELECT 1`;
+    const from =
+      "FROM " +
+      this.queryTree.fromClause
+        .map((x) => `${x.tableName} AS ${x.alias}`)
+        .join(", ");
+
+    const where = this.getWhere();
+
+    return [select, from, where].filter((c) => !!c).join(" ");
+  }
+
+  private getWhere(): string {
+    if (!this.queryTree.whereClause) {
+      return "";
+    }
+
+    const expr = buildPathItem(this.queryTree.whereClause);
+
+    // console.log(expr);
+
+    return `WHERE ${expr}`;
   }
 }
