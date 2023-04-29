@@ -1,27 +1,24 @@
-import { ExprBuilder, Like } from "./expr";
+import { ExprBuilder, Like } from "./expr-builder";
+import { BinaryOperator, Expression as Ex, UnaryOperator } from "./expression";
+import { Param, StringOrParam } from "./param";
 
-export type Param<T = any> = {
-  type: "param";
-  value: T;
-};
-
-export const param = <T>(value: T): Param<T> => ({ type: "param", value });
+export const param = (a: StringOrParam[]): StringOrParam[] => [...a];
 
 export const opDict: Record<
   keyof (Omit<ExprBuilder, "build"> & Like),
-  (...args: any[]) => (string | Param)[]
+  (...args: any[]) => Ex
 > = {
-  $eq: <T>(a: T, b: T) => [param(a), "=", param(b)],
-  $neq: <T>(a: T, b: T) => [param(a), "!=", param(b)],
-  $gt: <T>(a: T, b: T) => [param(a), ">", param(b)],
-  $gte: <T>(a: T, b: T) => [param(a), ">=", param(b)],
-  $lt: <T>(a: T, b: T) => [param(a), "<", param(b)],
-  $lte: <T>(a: T, b: T) => [param(a), "<=", param(b)],
-  $like: <T>(a: T, b: T) => [param(a), "LIKE", param(b)],
-  $isNull: <T>(a: T) => [param(a), "IS NULL"],
-  $isNotNull: <T>(a: T) => [param(a), "IS NOT NULL"],
-  $and: <T>(a: T, b: T) => [param(a), "AND", param(b)],
-  $or: <T>(a: T, b: T) => [param(a), "OR", param(b)],
+  $eq: (a: Ex, b: Ex) => new BinaryOperator("=", a, b),
+  $neq: (a: Ex, b: Ex) => new BinaryOperator("!=", a, b),
+  $gt: (a: Ex, b: Ex) => new BinaryOperator(">", a, b),
+  $gte: (a: Ex, b: Ex) => new BinaryOperator(">=", a, b),
+  $lt: (a: Ex, b: Ex) => new BinaryOperator("<", a, b),
+  $lte: (a: Ex, b: Ex) => new BinaryOperator("<=", a, b),
+  $like: (a: Ex, b: Ex) => new BinaryOperator("LIKE", a, b),
+  $isNull: (a: Ex) => new UnaryOperator("IS NULL", a, "postfix"),
+  $isNotNull: (a: Ex) => new UnaryOperator("IS NOT NULL", a, "postfix"),
+  $and: (a: Ex, b: Ex) => new BinaryOperator("AND", a, b),
+  $or: (a: Ex, b: Ex) => new BinaryOperator("OR", a, b),
 };
 
 export type OpDict = typeof opDict;

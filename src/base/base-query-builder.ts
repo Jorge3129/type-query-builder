@@ -1,14 +1,14 @@
 import { createBuilder } from "./query-proxy/builder-proxy";
-import { PathItem, buildPathItem } from "./query-proxy/path-item";
 import { Constr } from "./types/class-constructor";
-import { ExprBuilder, Like } from "./types/expr";
+import { ExprBuilder, Like } from "./types/expr-builder";
+import { Expression } from "./types/expression";
 import { MergeContext } from "./types/merge-context";
 import { opDict } from "./types/operators";
 
 class SelectQueryTree {
   selectClause: any[] = [];
   fromClause: { tableName: string; alias: string }[] = [];
-  whereClause?: PathItem;
+  whereClause?: Expression;
 }
 
 export class BaseQueryBuilder<Context extends {} = {}> {
@@ -62,10 +62,37 @@ export class BaseQueryBuilder<Context extends {} = {}> {
       return "";
     }
 
-    const expr = buildPathItem(this.queryTree.whereClause);
+    const expr = this.queryTree.whereClause.toStringOrParam({
+      escapeChar: '"',
+    });
 
-    // console.log(expr);
+    const res = expr.reduce(
+      (acc, strOrParam) => {
+        const { paramCount, resultStrings, resultParamValues } = acc;
 
-    return `WHERE ${expr}`;
+        if (typeof strOrParam === "string") {
+          return {
+            paramCount,
+            resultStrings: [...resultStrings, strOrParam],
+            resultParamValues,
+          };
+        }
+
+        return {
+          paramCount: paramCount + 1,
+          resultStrings: [...resultStrings, `$${paramCount + 1}`],
+          resultParamValues: [...resultParamValues, strOrParam.value],
+        };
+      },
+      {
+        paramCount: 0,
+        resultStrings: [] as string[],
+        resultParamValues: [] as any[],
+      }
+    );
+
+    console.log(res);
+
+    return `WHERE ${res.resultStrings.join(" ")}`;
   }
 }

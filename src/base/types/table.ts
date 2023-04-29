@@ -1,4 +1,4 @@
-import { ExprBuilder, NumExpr, StringExpr } from "./expr";
+import { ExprBuilder, NumExpr, StringExpr } from "./expr-builder";
 
 export type Attribute<T> = T extends string
   ? StringExpr

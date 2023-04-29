@@ -1,45 +1,46 @@
-import { isExpr } from "../types/expr";
-import { PathItem } from "./path-item";
+import { isExpr } from "../types/expr-builder";
+import {
+  Expression,
+  LiteralExpression,
+  VariableExpression,
+} from "../types/expression";
 
 export interface MethodDictionary {
-  [key: PropertyKey]: (...args: any[]) => any;
+  [key: PropertyKey]: (...args: any[]) => Expression;
 }
 
 export function createHandler(
   methods: MethodDictionary = {},
-  path: PathItem = { type: "varpath", path: [] }
+  currentExpr: Expression = new VariableExpression()
 ): ProxyHandler<object> {
   return {
     get: function (_: object, prop: PropertyKey) {
       if (prop === "build") {
-        return () => path;
+        return () => currentExpr;
       }
 
       if (typeof methods[prop] === "function") {
         return function (...args: any[]) {
-          const newPath: PathItem = {
-            type: "operator",
-            name: String(prop),
-            args: [
-              path,
-              ...args.map((arg) => (isExpr(arg) ? arg.build() : arg)),
-            ],
-          };
+          const builtArgs: Expression[] = [
+            currentExpr,
+            ...args.map((arg) =>
+              isExpr(arg) ? arg.build() : new LiteralExpression(arg)
+            ),
+          ];
 
-          return new Proxy({}, createHandler(methods, newPath));
+          const newExpr: Expression = methods[prop](...builtArgs);
+
+          return new Proxy({}, createHandler(methods, newExpr));
         };
       }
 
-      if (path.type === "operator") {
+      if (currentExpr.type !== "attribute") {
         throw Error(`Operator ${String(prop)} not defined`);
       }
 
-      const newPath = {
-        ...path,
-        path: [...path.path, String(prop)],
-      };
+      const newExpr = currentExpr.addPathItem(String(prop));
 
-      return new Proxy({}, createHandler(methods, newPath));
+      return new Proxy({}, createHandler(methods, newExpr));
     },
   };
 }

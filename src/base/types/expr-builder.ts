@@ -1,4 +1,4 @@
-import { PathItem } from "../query-proxy/path-item";
+import { Expression } from "./expression";
 
 export interface Eq<T> {
   $eq(other: T): ExprBuilder<boolean>;
@@ -44,7 +44,7 @@ export interface ExprBuilder<T = unknown>
     Ord<T>,
     IsNullable,
     Bool {
-  build(): PathItem;
+  build(): Expression;
 }
 
 export type StringExpr = ExprBuilder<string> & Like<string>;
