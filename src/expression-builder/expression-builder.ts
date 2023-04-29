@@ -50,5 +50,7 @@ export interface ExprBuilder<T = unknown>
 export type StringExpr = ExprBuilder<string> & Like<string>;
 export type NumExpr = ExprBuilder<number>;
 
-export const isExpr = <T = unknown>(val: unknown): val is ExprBuilder<T> =>
+export const isExprBuilder = <T = unknown>(
+  val: unknown
+): val is ExprBuilder<T> =>
   !!val && typeof (val as ExprBuilder<T>)["build"] === "function";

@@ -1,3 +1,4 @@
+import { litExp } from "./expression-builder/create-expression-buider";
 import { SelectQueryBuilder } from "./query-builder/select-query-builder";
 
 class User {
@@ -20,11 +21,11 @@ const qb = new SelectQueryBuilder()
   .where(({ u, p }) =>
     p.text
       .$like(u.name)
-      .$and(p.text.$like("%foo%"))
-      .$or(u.id.$neq(2))
-      .$and(p.author_id.$gt(1))
-      .$or(u.id.$isNotNull())
-      .$and(true)
+      // .$and(p.text.$like("%foo%"))
+      // .$or(u.id.$neq(2))
+      // .$and(p.author_id.$gt(1))
+      // .$or(u.id.$isNotNull())
+      .$and(litExp(1).$eq(1))
   );
 // .where(({ u, p }) => p.author_id.$isNull())
 // .where(({ u, p }) => u.id.$eq(p.author_id));

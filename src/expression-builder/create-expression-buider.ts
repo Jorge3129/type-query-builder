@@ -1,9 +1,11 @@
+import { Expression } from "../expression/expression";
+import { LiteralExpression } from "../expression/literal-expression";
 import {
-  Expression,
   VariableExpression,
-  LiteralExpression,
-} from "../expression/expression";
-import { isExpr } from "./expression-builder";
+  isVariableExpression,
+} from "../expression/variable-expression";
+import { defaultOperators } from "../operators/operators";
+import { ExprBuilder, isExprBuilder } from "./expression-builder";
 
 export interface MethodDictionary {
   [key: PropertyKey]: (...args: any[]) => Expression;
@@ -24,7 +26,7 @@ export function createHandler(
           const builtArgs: Expression[] = [
             currentExpr,
             ...args.map((arg) =>
-              isExpr(arg) ? arg.build() : new LiteralExpression(arg)
+              isExprBuilder(arg) ? arg.build() : new LiteralExpression(arg)
             ),
           ];
 
@@ -34,7 +36,7 @@ export function createHandler(
         };
       }
 
-      if (currentExpr.type !== "attribute") {
+      if (!isVariableExpression(currentExpr)) {
         throw Error(`Operator ${String(prop)} not defined`);
       }
 
@@ -45,5 +47,13 @@ export function createHandler(
   };
 }
 
-export const createBuilder = <T = unknown>(methods?: MethodDictionary): T =>
-  new Proxy({}, createHandler(methods)) as T;
+export const createExprBuilder = <T = unknown>(
+  methods?: MethodDictionary,
+  currentExpr?: Expression
+): T => new Proxy({}, createHandler(methods, currentExpr)) as T;
+
+export const litExp = <T>(val: T) =>
+  createExprBuilder<ExprBuilder<T>>(
+    defaultOperators,
+    new LiteralExpression(val)
+  );
