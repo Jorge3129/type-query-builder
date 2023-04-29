@@ -1,6 +1,6 @@
 import { ExprBuilder, Like } from "./expr-builder";
 import { BinaryOperator, Expression as Ex, UnaryOperator } from "./expression";
-import { Param, StringOrParam } from "./param";
+import { StringOrParam } from "./param";
 
 export const param = (a: StringOrParam[]): StringOrParam[] => [...a];
 

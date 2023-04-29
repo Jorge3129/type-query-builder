@@ -1,4 +1,4 @@
-import { BaseQueryBuilder } from "./base-query-builder";
+import { SelectQueryBuilder } from "./base-query-builder";
 
 class User {
   id: number;
@@ -12,10 +12,11 @@ class Post {
   likes: number;
 }
 
-const qb = new BaseQueryBuilder()
+const qb = new SelectQueryBuilder()
   .from(User, "u")
   .from(Post, "p")
   //   .where(cond(({ u, p }) => eq(expr(u.id), expr(p.author_id))))
+  .where((c) => c.p.author_id.$isNotNull())
   .where(({ u, p }) =>
     p.text
       .$like(u.name)

@@ -1,1 +1,1 @@
-export type Constr<Model> = { new (): Model };
+export type ClassConstructor<T> = { new (): T };

@@ -1,5 +1,5 @@
-import { createBuilder } from "./query-proxy/builder-proxy";
-import { Constr } from "./types/class-constructor";
+import { MethodDictionary, createBuilder } from "./query-proxy/builder-proxy";
+import { ClassConstructor } from "./types/class-constructor";
 import { ExprBuilder, Like } from "./types/expr-builder";
 import { Expression } from "./types/expression";
 import { MergeContext } from "./types/merge-context";
@@ -11,40 +11,59 @@ class SelectQueryTree {
   whereClause?: Expression;
 }
 
-export class BaseQueryBuilder<Context extends {} = {}> {
-  constructor(private queryTree: SelectQueryTree = new SelectQueryTree()) {}
+export type QueryBuilderOptions = {
+  operators: MethodDictionary;
+};
 
-  from<T, A extends string>(
-    table: Constr<T>,
-    alias: A
-  ): BaseQueryBuilder<{
-    [K in keyof MergeContext<Context, A, T>]: MergeContext<Context, A, T>[K];
+const getDefaultQueryBuilderOptions = (
+  options?: Partial<QueryBuilderOptions>
+): QueryBuilderOptions => {
+  return {
+    operators: options?.operators ?? opDict,
+  };
+};
+
+export class SelectQueryBuilder<Context extends {} = {}> {
+  private queryTree: SelectQueryTree = new SelectQueryTree();
+  private readonly options: QueryBuilderOptions;
+
+  constructor(options?: Partial<QueryBuilderOptions>) {
+    this.options = getDefaultQueryBuilderOptions(options);
+  }
+
+  public from<Model, Alias extends string>(
+    table: ClassConstructor<Model>,
+    alias: Alias
+  ): SelectQueryBuilder<{
+    [K in keyof MergeContext<Context, Alias, Model>]: MergeContext<
+      Context,
+      Alias,
+      Model
+    >[K];
   }> {
     this.queryTree.fromClause.push({
       tableName: table.name,
       alias,
     });
 
-    return this as any as BaseQueryBuilder<{
-      [K in keyof MergeContext<Context, A, T>]: MergeContext<Context, A, T>[K];
-    }>;
+    return this as any;
   }
 
-  where(
+  public where(
     condition: (context: Context) => ExprBuilder<boolean>
-  ): BaseQueryBuilder<Context> {
+  ): SelectQueryBuilder<Context> {
     const res = condition(createBuilder(opDict)).build();
 
     this.queryTree.whereClause = res;
 
-    return this as BaseQueryBuilder<Context>;
+    return this as SelectQueryBuilder<Context>;
   }
 
-  getTree() {
+  public getTree() {
     return this.queryTree;
   }
 
-  build(): string {
+  public build(): string {
     const select = `SELECT 1`;
     const from =
       "FROM " +
@@ -90,8 +109,6 @@ export class BaseQueryBuilder<Context extends {} = {}> {
         resultParamValues: [] as any[],
       }
     );
-
-    console.log(res);
 
     return `WHERE ${res.resultStrings.join(" ")}`;
   }
