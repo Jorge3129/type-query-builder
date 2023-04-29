@@ -1,9 +1,9 @@
-import { isExpr } from "../types/expr-builder";
 import {
   Expression,
-  LiteralExpression,
   VariableExpression,
-} from "../types/expression";
+  LiteralExpression,
+} from "../expression/expression";
+import { isExpr } from "./expression-builder";
 
 export interface MethodDictionary {
   [key: PropertyKey]: (...args: any[]) => Expression;

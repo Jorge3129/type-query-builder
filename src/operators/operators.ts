@@ -1,8 +1,9 @@
-import { ExprBuilder, Like } from "./expr-builder";
-import { BinaryOperator, Expression as Ex, UnaryOperator } from "./expression";
-import { StringOrParam } from "./param";
+import { ExprBuilder, Like } from "../expression-builder/expression-builder";
+import { BinaryOperator, UnaryOperator } from "../expression/expression";
+import { QueryStringOrParam } from "../query-stringifier/query-param";
+import { Expression as Ex } from "../expression/expression";
 
-export const param = (a: StringOrParam[]): StringOrParam[] => [...a];
+export const param = (a: QueryStringOrParam[]): QueryStringOrParam[] => [...a];
 
 export const opDict: Record<
   keyof (Omit<ExprBuilder, "build"> & Like),
@@ -15,10 +16,10 @@ export const opDict: Record<
   $lt: (a: Ex, b: Ex) => new BinaryOperator("<", a, b),
   $lte: (a: Ex, b: Ex) => new BinaryOperator("<=", a, b),
   $like: (a: Ex, b: Ex) => new BinaryOperator("LIKE", a, b),
-  $isNull: (a: Ex) => new UnaryOperator("IS NULL", a, "postfix"),
-  $isNotNull: (a: Ex) => new UnaryOperator("IS NOT NULL", a, "postfix"),
   $and: (a: Ex, b: Ex) => new BinaryOperator("AND", a, b),
   $or: (a: Ex, b: Ex) => new BinaryOperator("OR", a, b),
+  $isNull: (a: Ex) => new UnaryOperator("IS NULL", a, "postfix"),
+  $isNotNull: (a: Ex) => new UnaryOperator("IS NOT NULL", a, "postfix"),
 };
 
 export type OpDict = typeof opDict;

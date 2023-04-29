@@ -1,4 +1,4 @@
-import { Expression } from "./expression";
+import { Expression } from "../expression/expression";
 
 export interface Eq<T> {
   $eq(other: T): ExprBuilder<boolean>;

@@ -1,17 +1,13 @@
-import { StringOrParam, param } from "./param";
+import { QueryBits, param } from "../query-stringifier/query-param";
+import {
+  QueryStringifier,
+  QueryStringifierConfig,
+} from "../query-stringifier/query-stringifier";
 
-type ExpressionType = string;
+export type ExpressionType = string;
 
-export interface ExpressionBase extends ToStringOrParam {
+export interface ExpressionBase extends QueryStringifier {
   type: ExpressionType;
-}
-
-interface ToStringOrParamConfig {
-  escapeChar: string;
-}
-
-interface ToStringOrParam {
-  toStringOrParam(config: ToStringOrParamConfig): StringOrParam[];
 }
 
 export class LiteralExpression<T = any> implements ExpressionBase {
@@ -19,7 +15,7 @@ export class LiteralExpression<T = any> implements ExpressionBase {
 
   constructor(public readonly value: T) {}
 
-  public toStringOrParam(): StringOrParam[] {
+  public toQueryBits(): QueryBits {
     return [param(this.value)];
   }
 }
@@ -42,9 +38,7 @@ export class VariableExpression implements ExpressionBase {
     return new VariableExpression([...this.path, name]);
   }
 
-  public toStringOrParam({
-    escapeChar,
-  }: ToStringOrParamConfig): StringOrParam[] {
+  public toQueryBits({ escapeChar }: QueryStringifierConfig): QueryBits {
     return [this.stringify(escapeChar)];
   }
 }
@@ -58,11 +52,11 @@ export class BinaryOperator implements ExpressionBase {
     public readonly right: Expression
   ) {}
 
-  public toStringOrParam(config: ToStringOrParamConfig): StringOrParam[] {
+  public toQueryBits(config: QueryStringifierConfig): QueryBits {
     return [
-      ...this.left.toStringOrParam(config),
+      ...this.left.toQueryBits(config),
       this.operator,
-      ...this.right.toStringOrParam(config),
+      ...this.right.toQueryBits(config),
     ];
   }
 }
@@ -76,12 +70,12 @@ export class UnaryOperator implements ExpressionBase {
     public readonly orderType: "postfix" | "prefix" = "prefix"
   ) {}
 
-  public toStringOrParam(config: ToStringOrParamConfig): StringOrParam[] {
+  public toQueryBits(config: QueryStringifierConfig): QueryBits {
     if (this.orderType === "prefix") {
-      return [this.operator, ...this.operand.toStringOrParam(config)];
+      return [this.operator, ...this.operand.toQueryBits(config)];
     }
 
-    return [...this.operand.toStringOrParam(config), this.operator];
+    return [...this.operand.toQueryBits(config), this.operator];
   }
 }
 
