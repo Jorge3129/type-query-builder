@@ -1,10 +1,10 @@
 import { QueryBits } from "../query-stringifier/query-param";
 import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
-import { ExpressionBase, Expression } from "./expression";
+import { Expression } from "./expression";
 
 export type OperatorType = "postfix" | "prefix";
 
-export class UnaryOperatorExpression implements ExpressionBase {
+export class UnaryOperatorExpression implements Expression {
   public readonly type = "unaryOperator";
 
   constructor(

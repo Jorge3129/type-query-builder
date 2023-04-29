@@ -1,8 +1,8 @@
 import { QueryBits } from "../query-stringifier/query-param";
 import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
-import { ExpressionBase, Expression } from "./expression";
+import { Expression } from "./expression";
 
-export class BinaryOperatorExpression implements ExpressionBase {
+export class BinaryOperatorExpression implements Expression {
   public readonly type = "binaryOperator";
 
   constructor(

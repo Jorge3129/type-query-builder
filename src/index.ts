@@ -1,4 +1,4 @@
-import { litExp } from "./expression-builder/create-expression-buider";
+import { litExp } from "./expression-builder/lit-exp";
 import { SelectQueryBuilder } from "./query-builder/select-query-builder";
 
 class User {

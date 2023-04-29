@@ -4,8 +4,7 @@ import {
   VariableExpression,
   isVariableExpression,
 } from "../expression/variable-expression";
-import { defaultOperators } from "../operators/operators";
-import { ExprBuilder, isExprBuilder } from "./expression-builder";
+import { isExprBuilder } from "./expression-builder";
 
 export interface MethodDictionary {
   [key: PropertyKey]: (...args: any[]) => Expression;
@@ -51,9 +50,3 @@ export const createExprBuilder = <T = unknown>(
   methods?: MethodDictionary,
   currentExpr?: Expression
 ): T => new Proxy({}, createHandler(methods, currentExpr)) as T;
-
-export const litExp = <T>(val: T) =>
-  createExprBuilder<ExprBuilder<T>>(
-    defaultOperators,
-    new LiteralExpression(val)
-  );

@@ -1,7 +1,7 @@
 import { QueryBits, param } from "../query-stringifier/query-param";
-import { ExpressionBase } from "./expression";
+import { Expression } from "./expression";
 
-export class LiteralExpression<T = any> implements ExpressionBase {
+export class LiteralExpression<T = any> implements Expression {
   public readonly type = "literal";
 
   constructor(public readonly value: T) {}

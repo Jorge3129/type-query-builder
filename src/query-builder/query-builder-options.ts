@@ -1,5 +1,5 @@
 import { MethodDictionary } from "../expression-builder/create-expression-buider";
-import { defaultOperators } from "../operators/operators";
+import { defaultOperators } from "../operators/default-operators";
 
 export type QueryBuilderOptions = {
   operators: MethodDictionary;
