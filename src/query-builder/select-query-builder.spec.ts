@@ -4,6 +4,7 @@ import { SelectQueryBuilder } from "./select-query-builder";
 class User {
   id: number;
   name: string;
+  age: number;
 }
 
 class Post {
@@ -37,10 +38,15 @@ describe("SelectQueryBuilder", () => {
           .$like(u.name)
           .$and(p.text.$like("%foo%"))
           .$or(u.id.$neq(2))
+          .$or(u.id.$plus(1).$times(2).$div(4).$minus(p.author_id))
           .$and(p.author_id.$gt(1))
           .$or(u.id.$isNotNull())
+          .$and(u.name.$between("a", "b"))
           .$and(litExp(1).$eq(1))
+          .$and(u.name.$in("foo", "bar"))
       );
+
+    console.log(qb.build());
 
     expect(qb.build()).toBeDefined();
   });
