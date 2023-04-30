@@ -33,7 +33,7 @@ describe("SelectQueryBuilder", () => {
     const qb = new SelectQueryBuilder()
       .from(User, "u")
       .from(Post, "p")
-      .where(({ u, p }) =>
+      .where(({ u, p }, { sum }) =>
         p.text
           .$like(u.name)
           .$and(p.text.$like("%foo%"))
@@ -44,6 +44,7 @@ describe("SelectQueryBuilder", () => {
           .$and(u.name.$between("a", "b"))
           .$and(litExp(1).$eq(1))
           .$and(u.name.$in("foo", "bar"))
+          .$and(sum(u.age).$eq(1))
       );
 
     console.log(qb.build());

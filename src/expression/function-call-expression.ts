@@ -3,11 +3,11 @@ import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
 import { Expression } from "./expression";
 import { sepBy } from "./sep-by";
 
-export class InExpression<T> implements Expression {
-  public readonly type = "inOperator";
+export class FunctionCallExpression implements Expression {
+  public readonly type = "functionCall";
   public readonly args: Expression[];
 
-  constructor(public readonly operand: Expression, ...args: Expression[]) {
+  constructor(public readonly functionName: string, ...args: Expression[]) {
     this.args = args;
   }
 
@@ -16,6 +16,6 @@ export class InExpression<T> implements Expression {
 
     const argBits = sepBy(argQueryBits, ",");
 
-    return [...this.operand.toQueryBits(config), "IN", "(", ...argBits, ")"];
+    return [this.functionName, "(", ...argBits, ")"];
   }
 }

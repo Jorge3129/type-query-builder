@@ -1,5 +1,6 @@
 import { createExprBuilder } from "../expression-builder/create-expression-buider";
 import { ExprBuilder } from "../expression-builder/expression-builder";
+import { defaultFunctions } from "../functions/default-functions";
 import { QueryAndParams } from "../query-stringifier/query";
 import { QueryBits } from "../query-stringifier/query-param";
 import { stringifyQuery } from "../query-stringifier/stringify-query";
@@ -38,10 +39,14 @@ export class SelectQueryBuilder<Context extends {} = {}> {
   }
 
   public where(
-    condition: (context: Context) => ExprBuilder<boolean>
+    condition: (
+      context: Context,
+      functions: typeof defaultFunctions
+    ) => ExprBuilder<boolean>
   ): SelectQueryBuilder<Context> {
     this.queryTree.whereClause = condition(
-      createExprBuilder(this.options.operators)
+      createExprBuilder(this.options.operators),
+      defaultFunctions
     ).build();
 
     return this as SelectQueryBuilder<Context>;
