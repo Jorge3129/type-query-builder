@@ -1,44 +1,59 @@
 import { QueryAndParams } from "./query";
-import { QueryBits } from "./query-param";
+import { QueryBit, QueryStringBit, stringBit } from "./query-param";
 
 interface QueryAccumulator {
   paramIndex: number;
-  queryStrings: string[];
+  stringBits: QueryStringBit[];
   params: any[];
 }
 
 export type PlaceholderGenerator = (paramIndex: number) => string;
 
+export const stringifyJoin = (bits: QueryBit[], separator: string) => {
+  return bits.reduce((acc, bit, index, { length }) => {
+    const isLast = index === length - 1;
+
+    const newSeparator = bit.spaceAfter && !isLast ? separator : "";
+
+    const newBit = bit.value + newSeparator;
+
+    return acc + newBit;
+  }, "");
+};
+
 export const stringifyQuery = (
-  queryBits: QueryBits,
+  queryBits: QueryBit[],
   placeholderGenerator: PlaceholderGenerator
 ): QueryAndParams => {
   const initAcc: QueryAccumulator = {
     paramIndex: 0,
-    queryStrings: [],
+    stringBits: [],
     params: [],
   };
 
   const result = queryBits.reduce((acc, strOrParam) => {
-    const { paramIndex, queryStrings, params } = acc;
+    const { paramIndex, stringBits, params } = acc;
 
-    if (typeof strOrParam === "string") {
+    if (strOrParam.type === "string") {
       return {
         paramIndex: paramIndex,
-        queryStrings: [...queryStrings, strOrParam],
+        stringBits: [...stringBits, strOrParam],
         params,
       };
     }
 
     return {
       paramIndex: paramIndex + 1,
-      queryStrings: [...queryStrings, placeholderGenerator(paramIndex)],
+      stringBits: [
+        ...stringBits,
+        stringBit(placeholderGenerator(paramIndex), strOrParam.spaceAfter),
+      ],
       params: [...params, strOrParam.value],
     };
   }, initAcc);
 
   return {
-    queryString: result.queryStrings.join(" "),
+    queryString: stringifyJoin(result.stringBits, " "),
     params: result.params,
   };
 };

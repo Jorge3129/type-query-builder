@@ -1,4 +1,4 @@
-import { QueryBits } from "../query-stringifier/query-param";
+import { QueryBit, stringBit } from "../query-stringifier/query-param";
 import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
 import { Expression } from "./expression";
 
@@ -11,10 +11,10 @@ export class BinaryOperatorExpression implements Expression {
     public readonly right: Expression
   ) {}
 
-  public toQueryBits(config: QueryStringifierConfig): QueryBits {
+  public toQueryBits(config: QueryStringifierConfig): QueryBit[] {
     return [
       ...this.left.toQueryBits(config),
-      this.operator,
+      stringBit(this.operator),
       ...this.right.toQueryBits(config),
     ];
   }

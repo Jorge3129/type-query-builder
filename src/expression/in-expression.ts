@@ -1,7 +1,7 @@
-import { QueryBits } from "../query-stringifier/query-param";
+import { QueryBit, stringBit } from "../query-stringifier/query-param";
 import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
+import { commaSepExpressions } from "./comma-separated";
 import { Expression } from "./expression";
-import { sepBy } from "./sep-by";
 
 export class InExpression<T> implements Expression {
   public readonly type = "inOperator";
@@ -11,11 +11,15 @@ export class InExpression<T> implements Expression {
     this.args = args;
   }
 
-  public toQueryBits(config: QueryStringifierConfig): QueryBits {
-    const argQueryBits = this.args.map((a) => a.toQueryBits(config));
+  public toQueryBits(config: QueryStringifierConfig): QueryBit[] {
+    const argBits = commaSepExpressions(this.args, config);
 
-    const argBits = sepBy(argQueryBits, ",");
-
-    return [...this.operand.toQueryBits(config), "IN", "(", ...argBits, ")"];
+    return [
+      ...this.operand.toQueryBits(config),
+      stringBit("IN"),
+      stringBit("(", false),
+      ...argBits,
+      stringBit(")"),
+    ];
   }
 }

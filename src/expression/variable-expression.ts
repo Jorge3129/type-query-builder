@@ -1,4 +1,4 @@
-import { QueryBits } from "../query-stringifier/query-param";
+import { QueryBit, stringBit } from "../query-stringifier/query-param";
 import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
 import { Expression } from "./expression";
 
@@ -22,8 +22,8 @@ export class VariableExpression implements Expression {
     return new VariableExpression([...this.path, name]);
   }
 
-  public toQueryBits({ escapeChar }: QueryStringifierConfig): QueryBits {
-    return [this.stringify(escapeChar)];
+  public toQueryBits({ escapeChar }: QueryStringifierConfig): QueryBit[] {
+    return [stringBit(this.stringify(escapeChar))];
   }
 }
 

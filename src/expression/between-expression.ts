@@ -1,4 +1,4 @@
-import { QueryBits } from "../query-stringifier/query-param";
+import { QueryBit, stringBit } from "../query-stringifier/query-param";
 import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
 import { Expression } from "./expression";
 
@@ -11,12 +11,12 @@ export class BetweenExpression<T> implements Expression {
     public readonly end: Expression
   ) {}
 
-  public toQueryBits(config: QueryStringifierConfig): QueryBits {
+  public toQueryBits(config: QueryStringifierConfig): QueryBit[] {
     return [
       ...this.operand.toQueryBits(config),
-      "BETWEEN",
+      stringBit("BETWEEN"),
       ...this.start.toQueryBits(config),
-      "AND",
+      stringBit("AND"),
       ...this.end.toQueryBits(config),
     ];
   }

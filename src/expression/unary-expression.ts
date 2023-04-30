@@ -1,4 +1,4 @@
-import { QueryBits } from "../query-stringifier/query-param";
+import { QueryBit, stringBit } from "../query-stringifier/query-param";
 import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
 import { Expression } from "./expression";
 
@@ -13,12 +13,12 @@ export class UnaryOperatorExpression implements Expression {
     public readonly operatorType: OperatorType = "prefix"
   ) {}
 
-  public toQueryBits(config: QueryStringifierConfig): QueryBits {
+  public toQueryBits(config: QueryStringifierConfig): QueryBit[] {
     if (this.operatorType === "prefix") {
-      return [this.operator, ...this.operand.toQueryBits(config)];
+      return [stringBit(this.operator), ...this.operand.toQueryBits(config)];
     }
 
-    return [...this.operand.toQueryBits(config), this.operator];
+    return [...this.operand.toQueryBits(config), stringBit(this.operator)];
   }
 }
 
