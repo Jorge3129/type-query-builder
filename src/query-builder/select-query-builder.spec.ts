@@ -18,12 +18,15 @@ describe("SelectQueryBuilder", () => {
   it("should build where clause", () => {
     const qb = new SelectQueryBuilder()
       .from(User, "u")
-      .where(({ u }) => u.name.$like("%foo%").$and(litExp(1).$eq(2)));
+      .where(({ u }) => u.name.$like("%foo%").$and(litExp(1).$eq(2)))
+      .select(({ u }) => u.age);
 
     const { queryString, params } = qb.buildQueryAndParams();
 
+    qb.getOne();
+
     expect(queryString).toBe(
-      `SELECT 1 FROM User AS u WHERE "u"."name" LIKE $1 AND $2 = $3`
+      `SELECT "u"."age" FROM User AS u WHERE "u"."name" LIKE $1 AND $2 = $3`
     );
 
     expect(params).toEqual(["%foo%", 1, 2]);
@@ -45,7 +48,9 @@ describe("SelectQueryBuilder", () => {
           .$and(litExp(1).$eq(1))
           .$and(u.name.$in("foo", "bar"))
           .$and(sum(u.age).$eq(1))
-      );
+      )
+      .selectAs(({ u }) => u.name, "age")
+      .selectAs(({ p }) => p.author_id, "authorId");
 
     console.log(qb.build());
 

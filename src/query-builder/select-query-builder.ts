@@ -1,20 +1,26 @@
 import { createExprBuilder } from "../expression-builder/create-expression-buider";
 import { ExprBuilder } from "../expression-builder/expression-builder";
-import { commaSep } from "../expression/comma-separated";
+import { AliasExpression } from "../expression/alias-expression";
+import { commaSep, commaSepExpressions } from "../expression/comma-separated";
+import { LiteralExpression } from "../expression/literal-expression";
 import { defaultFunctions } from "../functions/default-functions";
-import { QueryAndParams } from "../query-stringifier/query";
-import { QueryComponent } from "../query-stringifier/query-component/query-component";
-import { textComponent } from "../query-stringifier/query-component/query-text-component";
+import { QueryAndParams } from "../query-stringifier/query-and-params";
+import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
+import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
 import { stringifyQuery } from "../query-stringifier/stringify-query";
 import { ClassConstructor } from "../types/class-constructor";
-import { MergeContext } from "../types/merge-context";
+import { MergeContextWithTable, MergeContext } from "../types/merge-context";
+import { ReverseAttribute } from "../types/table";
 import {
   QueryBuilderOptions,
   getDefaultQueryBuilderOptions,
 } from "./query-builder-options";
 import { SelectQueryTree } from "./select-query-tree";
 
-export class SelectQueryBuilder<Context extends {} = {}> {
+export class SelectQueryBuilder<
+  Context extends {} = {},
+  ReturnContext extends {} = {}
+> {
   private queryTree = new SelectQueryTree();
   private readonly options: QueryBuilderOptions;
 
@@ -26,11 +32,11 @@ export class SelectQueryBuilder<Context extends {} = {}> {
     table: ClassConstructor<Model>,
     alias: Alias
   ): SelectQueryBuilder<{
-    [K in keyof MergeContext<Context, Alias, Model>]: MergeContext<
+    [K in keyof MergeContextWithTable<
       Context,
       Alias,
       Model
-    >[K];
+    >]: MergeContextWithTable<Context, Alias, Model>[K];
   }> {
     this.queryTree.fromClause.push({
       tableName: table.name,
@@ -54,6 +60,56 @@ export class SelectQueryBuilder<Context extends {} = {}> {
     return this as SelectQueryBuilder<Context>;
   }
 
+  public selectAs<A extends string, E extends ExprBuilder<any>>(
+    expression: (context: Context, functions: typeof defaultFunctions) => E,
+    alias?: A
+  ): SelectQueryBuilder<
+    Context,
+    {
+      [K in keyof MergeContext<
+        ReturnContext,
+        A,
+        ReverseAttribute<E>
+      >]: MergeContext<ReturnContext, A, ReverseAttribute<E>>[K];
+    }
+  > {
+    const expr = expression(
+      createExprBuilder(this.options.operators),
+      defaultFunctions
+    ).build();
+
+    this.queryTree.selectClause.push(
+      alias ? new AliasExpression(expr, new LiteralExpression(alias)) : expr
+    );
+
+    return this as any;
+  }
+
+  public select<A extends string, T>(
+    expression: (
+      context: Context,
+      functions: typeof defaultFunctions
+    ) => ExprBuilder<T>
+  ): SelectQueryBuilder<
+    Context,
+    {
+      [K in keyof MergeContext<ReturnContext, A, T>]: MergeContext<
+        ReturnContext,
+        A,
+        T
+      >[K];
+    }
+  > {
+    const expr = expression(
+      createExprBuilder(this.options.operators),
+      defaultFunctions
+    ).build();
+
+    this.queryTree.selectClause.push(expr);
+
+    return this as any;
+  }
+
   public getTree() {
     return this.queryTree;
   }
@@ -66,7 +122,15 @@ export class SelectQueryBuilder<Context extends {} = {}> {
     return stringifyQuery(this.getAllQueryBits(), (index) => `$${index + 1}`);
   }
 
-  private getAllQueryBits(): QueryComponent[] {
+  public getMany(): ReturnContext[] {
+    return [];
+  }
+
+  public getOne(): ReturnContext {
+    return {} as any;
+  }
+
+  private getAllQueryBits(): QueryFragment[] {
     const select = this.getSelectQueryBits();
     const from = this.getFromQueryBits();
     const where = this.getWhereQueryBits();
@@ -74,32 +138,35 @@ export class SelectQueryBuilder<Context extends {} = {}> {
     return [...select, ...from, ...where].filter((c) => !!c);
   }
 
-  private getSelectQueryBits(): QueryComponent[] {
-    return [textComponent(`SELECT 1`)];
+  private getSelectQueryBits(): QueryFragment[] {
+    return [
+      textFragment(`SELECT`),
+      ...commaSepExpressions(this.queryTree.selectClause, this.options),
+    ];
   }
 
-  private getFromQueryBits(): QueryComponent[] {
+  private getFromQueryBits(): QueryFragment[] {
     if (!this.queryTree.fromClause.length) {
       return [];
     }
 
     return [
-      textComponent("FROM"),
+      textFragment("FROM"),
       ...commaSep(
         this.queryTree.fromClause.map((table) => [
-          textComponent(`${table.tableName} AS ${table.alias}`),
+          textFragment(`${table.tableName} AS ${table.alias}`),
         ])
       ),
     ];
   }
 
-  private getWhereQueryBits(): QueryComponent[] {
+  private getWhereQueryBits(): QueryFragment[] {
     if (!this.queryTree.whereClause) {
       return [];
     }
 
-    const expr = this.queryTree.whereClause.toQueryComponents(this.options);
+    const expr = this.queryTree.whereClause.toQueryFragments(this.options);
 
-    return [textComponent("WHERE"), ...expr];
+    return [textFragment("WHERE"), ...expr];
   }
 }

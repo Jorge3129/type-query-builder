@@ -6,7 +6,7 @@ export type FromConfig = {
 };
 
 export class SelectQueryTree {
-  selectClause: any[] = [];
+  selectClause: Expression[] = [];
   fromClause: FromConfig[] = [];
   whereClause?: Expression;
 }
