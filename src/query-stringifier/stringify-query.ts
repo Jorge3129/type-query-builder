@@ -1,20 +1,20 @@
-import { QueryAndParams } from "./query";
-import { QueryComponent } from "./query-component/query-component";
+import { QueryAndParams } from "./query-and-params";
+import { QueryFragment } from "./query-fragment/query-fragment";
 import {
-  QueryTextComponent,
-  isTextComponent,
-  textComponent,
-} from "./query-component/query-text-component";
+  TextQueryFragment,
+  isTextQueryFragment,
+  textFragment,
+} from "./query-fragment/text-query-fragment";
 
 interface QueryAccumulator {
   paramIndex: number;
-  queryTextComponents: QueryTextComponent[];
+  queryTextComponents: TextQueryFragment[];
   params: any[];
 }
 
 export type PlaceholderGenerator = (paramIndex: number) => string;
 
-export const stringifyJoin = (bits: QueryComponent[], separator: string) => {
+export const stringifyJoin = (bits: QueryFragment[], separator: string) => {
   return bits.reduce((acc, bit, index, { length }) => {
     const isLast = index === length - 1;
 
@@ -27,7 +27,7 @@ export const stringifyJoin = (bits: QueryComponent[], separator: string) => {
 };
 
 export const stringifyQuery = (
-  queryBits: QueryComponent[],
+  queryBits: QueryFragment[],
   placeholderGenerator: PlaceholderGenerator
 ): QueryAndParams => {
   const initAcc: QueryAccumulator = {
@@ -39,7 +39,7 @@ export const stringifyQuery = (
   const result = queryBits.reduce((acc, queryComponent) => {
     const { paramIndex, queryTextComponents, params } = acc;
 
-    if (isTextComponent(queryComponent)) {
+    if (isTextQueryFragment(queryComponent)) {
       return {
         paramIndex: paramIndex,
         queryTextComponents: [...queryTextComponents, queryComponent],
@@ -51,7 +51,7 @@ export const stringifyQuery = (
       paramIndex: paramIndex + 1,
       queryTextComponents: [
         ...queryTextComponents,
-        textComponent(
+        textFragment(
           placeholderGenerator(paramIndex),
           queryComponent.spaceAfter
         ),

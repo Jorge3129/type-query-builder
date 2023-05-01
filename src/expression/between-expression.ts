@@ -1,7 +1,7 @@
-import { QueryComponent } from "../query-stringifier/query-component/query-component";
-import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
+import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
+import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
 import { Expression } from "./expression";
-import { textComponent } from "../query-stringifier/query-component/query-text-component";
+import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
 
 export class BetweenExpression<T> implements Expression {
   public readonly type = "betweenOperator";
@@ -12,15 +12,13 @@ export class BetweenExpression<T> implements Expression {
     public readonly end: Expression
   ) {}
 
-  public toQueryComponents(
-    config: QueryComponentSerializerConfig
-  ): QueryComponent[] {
+  public toQueryFragments(config: ToQueryFragmentsConfig): QueryFragment[] {
     return [
-      ...this.operand.toQueryComponents(config),
-      textComponent("BETWEEN"),
-      ...this.start.toQueryComponents(config),
-      textComponent("AND"),
-      ...this.end.toQueryComponents(config),
+      ...this.operand.toQueryFragments(config),
+      textFragment("BETWEEN"),
+      ...this.start.toQueryFragments(config),
+      textFragment("AND"),
+      ...this.end.toQueryFragments(config),
     ];
   }
 }

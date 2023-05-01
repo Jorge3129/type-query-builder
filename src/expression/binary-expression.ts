@@ -1,7 +1,7 @@
-import { QueryComponent } from "../query-stringifier/query-component/query-component";
-import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
+import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
+import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
 import { Expression } from "./expression";
-import { textComponent } from "../query-stringifier/query-component/query-text-component";
+import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
 
 export class BinaryOperatorExpression implements Expression {
   public readonly type = "binaryOperator";
@@ -12,13 +12,11 @@ export class BinaryOperatorExpression implements Expression {
     public readonly right: Expression
   ) {}
 
-  public toQueryComponents(
-    config: QueryComponentSerializerConfig
-  ): QueryComponent[] {
+  public toQueryFragments(config: ToQueryFragmentsConfig): QueryFragment[] {
     return [
-      ...this.left.toQueryComponents(config),
-      textComponent(this.operator),
-      ...this.right.toQueryComponents(config),
+      ...this.left.toQueryFragments(config),
+      textFragment(this.operator),
+      ...this.right.toQueryFragments(config),
     ];
   }
 }

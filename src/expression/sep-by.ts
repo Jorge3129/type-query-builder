@@ -1,9 +1,9 @@
-import { QueryComponent } from "../query-stringifier/query-component/query-component";
+import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 
 export const sepBy = (
-  args: QueryComponent[][],
-  separator: QueryComponent
-): QueryComponent[] => {
+  args: QueryFragment[][],
+  separator: QueryFragment
+): QueryFragment[] => {
   return args.flatMap((argBits, index, { length }) => {
     if (index === length - 1) {
       return argBits;

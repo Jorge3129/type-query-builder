@@ -1,8 +1,8 @@
-import { QueryComponent } from "../query-stringifier/query-component/query-component";
-import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
+import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
+import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
 import { commaSepExpressions } from "./comma-separated";
 import { Expression } from "./expression";
-import { textComponent } from "../query-stringifier/query-component/query-text-component";
+import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
 
 export class FunctionCallExpression implements Expression {
   public readonly type = "functionCall";
@@ -12,16 +12,14 @@ export class FunctionCallExpression implements Expression {
     this.args = args;
   }
 
-  public toQueryComponents(
-    config: QueryComponentSerializerConfig
-  ): QueryComponent[] {
+  public toQueryFragments(config: ToQueryFragmentsConfig): QueryFragment[] {
     const argBits = commaSepExpressions(this.args, config);
 
     return [
-      textComponent(this.functionName, false),
-      textComponent("(", false),
+      textFragment(this.functionName, false),
+      textFragment("(", false),
       ...argBits,
-      textComponent(")"),
+      textFragment(")"),
     ];
   }
 }

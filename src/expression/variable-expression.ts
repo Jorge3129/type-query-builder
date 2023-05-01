@@ -1,7 +1,7 @@
-import { QueryComponent } from "../query-stringifier/query-component/query-component";
-import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
+import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
+import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
 import { Expression } from "./expression";
-import { textComponent } from "../query-stringifier/query-component/query-text-component";
+import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
 
 export const identifier = (name: string, escapeChar = "") =>
   `${escapeChar}${name}${escapeChar}`;
@@ -23,10 +23,10 @@ export class VariableExpression implements Expression {
     return new VariableExpression([...this.path, name]);
   }
 
-  public toQueryComponents({
+  public toQueryFragments({
     escapeChar,
-  }: QueryComponentSerializerConfig): QueryComponent[] {
-    return [textComponent(this.stringify(escapeChar))];
+  }: ToQueryFragmentsConfig): QueryFragment[] {
+    return [textFragment(this.stringify(escapeChar))];
   }
 }
 

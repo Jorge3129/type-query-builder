@@ -1,5 +1,5 @@
-import { QueryComponent } from "../query-stringifier/query-component/query-component";
-import { paramComponent } from "../query-stringifier/query-component/query-param-component";
+import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
+import { paramFragment } from "../query-stringifier/query-fragment/param-query-fragment";
 import { Expression } from "./expression";
 
 export class LiteralExpression<T = any> implements Expression {
@@ -7,7 +7,7 @@ export class LiteralExpression<T = any> implements Expression {
 
   constructor(public readonly value: T) {}
 
-  public toQueryComponents(): QueryComponent[] {
-    return [paramComponent(this.value)];
+  public toQueryFragments(): QueryFragment[] {
+    return [paramFragment(this.value)];
   }
 }
