@@ -8,7 +8,7 @@ export const commaSep = (args: QueryComponent[][]): QueryComponent[] => {
   const argQueryBits = args.map((bits, index, { length }) => {
     return index === length - 1
       ? bits
-      : [...bits.slice(0, -1), bits[bits.length - 1].modifySpace(false)];
+      : [...bits.slice(0, -1), bits[bits.length - 1].setSpaceAfter(false)];
   });
 
   return sepBy(argQueryBits, textComponent(","));

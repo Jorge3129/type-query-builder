@@ -1,4 +1,8 @@
-export class QueryTextComponent {
+import { QueryComponentBase } from "./query-component";
+
+export class QueryTextComponent
+  implements QueryComponentBase<QueryTextComponent>
+{
   public readonly type = "queryTextComponent";
 
   constructor(
@@ -6,7 +10,7 @@ export class QueryTextComponent {
     public readonly spaceAfter = true
   ) {}
 
-  public modifySpace(spaceAfter: boolean) {
+  public setSpaceAfter(spaceAfter: boolean) {
     return new QueryTextComponent(this.value, spaceAfter);
   }
 }
