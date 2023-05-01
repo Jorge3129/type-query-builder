@@ -26,7 +26,7 @@ describe("SelectQueryBuilder", () => {
     qb.getOne();
 
     expect(queryString).toBe(
-      `SELECT "u"."age" FROM User AS u WHERE "u"."name" LIKE $1 AND $2 = $3`
+      `SELECT "u"."age" FROM "User" AS "u" WHERE "u"."name" LIKE $1 AND $2 = $3`
     );
 
     expect(params).toEqual(["%foo%", 1, 2]);

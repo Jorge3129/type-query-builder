@@ -3,6 +3,7 @@ import { ExprBuilder } from "../expression-builder/expression-builder";
 import { AliasExpression } from "../expression/alias-expression";
 import { commaSep, commaSepExpressions } from "../expression/comma-separated";
 import { LiteralExpression } from "../expression/literal-expression";
+import { VariableExpression } from "../expression/variable-expression";
 import { defaultFunctions } from "../functions/default-functions";
 import { QueryAndParams } from "../query-stringifier/query-and-params";
 import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
@@ -154,7 +155,10 @@ export class SelectQueryBuilder<
       textFragment("FROM"),
       ...commaSep(
         this.queryTree.fromClause.map((table) => [
-          textFragment(`${table.tableName} AS ${table.alias}`),
+          ...new AliasExpression(
+            new VariableExpression([table.tableName]),
+            new LiteralExpression(table.alias)
+          ).toQueryFragments(this.options),
         ])
       ),
     ];
