@@ -1,4 +1,5 @@
-import { QueryBit, paramBit } from "../query-stringifier/query-param";
+import { QueryComponent } from "../query-stringifier/query-component/query-component";
+import { paramComponent } from "../query-stringifier/query-component/query-param-component";
 import { Expression } from "./expression";
 
 export class LiteralExpression<T = any> implements Expression {
@@ -6,7 +7,7 @@ export class LiteralExpression<T = any> implements Expression {
 
   constructor(public readonly value: T) {}
 
-  public toQueryBits(): QueryBit[] {
-    return [paramBit(this.value)];
+  public toQueryComponents(): QueryComponent[] {
+    return [paramComponent(this.value)];
   }
 }

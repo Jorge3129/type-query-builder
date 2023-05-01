@@ -1,6 +1,7 @@
-import { QueryBit, stringBit } from "../query-stringifier/query-param";
-import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
+import { QueryComponent } from "../query-stringifier/query-component/query-component";
+import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
 import { Expression } from "./expression";
+import { textComponent } from "../query-stringifier/query-component/query-text-component";
 
 export class BetweenExpression<T> implements Expression {
   public readonly type = "betweenOperator";
@@ -11,13 +12,15 @@ export class BetweenExpression<T> implements Expression {
     public readonly end: Expression
   ) {}
 
-  public toQueryBits(config: QueryStringifierConfig): QueryBit[] {
+  public toQueryComponents(
+    config: QueryComponentSerializerConfig
+  ): QueryComponent[] {
     return [
-      ...this.operand.toQueryBits(config),
-      stringBit("BETWEEN"),
-      ...this.start.toQueryBits(config),
-      stringBit("AND"),
-      ...this.end.toQueryBits(config),
+      ...this.operand.toQueryComponents(config),
+      textComponent("BETWEEN"),
+      ...this.start.toQueryComponents(config),
+      textComponent("AND"),
+      ...this.end.toQueryComponents(config),
     ];
   }
 }

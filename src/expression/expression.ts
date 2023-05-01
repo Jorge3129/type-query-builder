@@ -1,7 +1,7 @@
-import { QueryStringifier } from "../query-stringifier/query-stringifier";
+import { QueryComponentSerializer } from "../query-stringifier/query-component-serializer";
 
 export type ExpressionType = string;
 
-export interface Expression extends QueryStringifier {
+export interface Expression extends QueryComponentSerializer {
   type: ExpressionType;
 }

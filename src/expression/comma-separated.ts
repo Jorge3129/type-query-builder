@@ -1,21 +1,22 @@
-import { QueryBit, stringBit } from "../query-stringifier/query-param";
-import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
+import { QueryComponent } from "../query-stringifier/query-component/query-component";
+import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
 import { Expression } from "./expression";
 import { sepBy } from "./sep-by";
+import { textComponent } from "../query-stringifier/query-component/query-text-component";
 
-export const commaSep = (args: QueryBit[][]): QueryBit[] => {
+export const commaSep = (args: QueryComponent[][]): QueryComponent[] => {
   const argQueryBits = args.map((bits, index, { length }) => {
     return index === length - 1
       ? bits
       : [...bits.slice(0, -1), bits[bits.length - 1].modifySpace(false)];
   });
 
-  return sepBy(argQueryBits, stringBit(","));
+  return sepBy(argQueryBits, textComponent(","));
 };
 
 export const commaSepExpressions = (
   args: Expression[],
-  config: QueryStringifierConfig
-): QueryBit[] => {
-  return commaSep(args.map((a) => a.toQueryBits(config)));
+  config: QueryComponentSerializerConfig
+): QueryComponent[] => {
+  return commaSep(args.map((a) => a.toQueryComponents(config)));
 };

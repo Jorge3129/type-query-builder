@@ -3,7 +3,8 @@ import { ExprBuilder } from "../expression-builder/expression-builder";
 import { commaSep } from "../expression/comma-separated";
 import { defaultFunctions } from "../functions/default-functions";
 import { QueryAndParams } from "../query-stringifier/query";
-import { QueryBit, stringBit } from "../query-stringifier/query-param";
+import { QueryComponent } from "../query-stringifier/query-component/query-component";
+import { textComponent } from "../query-stringifier/query-component/query-text-component";
 import { stringifyQuery } from "../query-stringifier/stringify-query";
 import { ClassConstructor } from "../types/class-constructor";
 import { MergeContext } from "../types/merge-context";
@@ -65,7 +66,7 @@ export class SelectQueryBuilder<Context extends {} = {}> {
     return stringifyQuery(this.getAllQueryBits(), (index) => `$${index + 1}`);
   }
 
-  private getAllQueryBits(): QueryBit[] {
+  private getAllQueryBits(): QueryComponent[] {
     const select = this.getSelectQueryBits();
     const from = this.getFromQueryBits();
     const where = this.getWhereQueryBits();
@@ -73,32 +74,32 @@ export class SelectQueryBuilder<Context extends {} = {}> {
     return [...select, ...from, ...where].filter((c) => !!c);
   }
 
-  private getSelectQueryBits(): QueryBit[] {
-    return [stringBit(`SELECT 1`)];
+  private getSelectQueryBits(): QueryComponent[] {
+    return [textComponent(`SELECT 1`)];
   }
 
-  private getFromQueryBits(): QueryBit[] {
+  private getFromQueryBits(): QueryComponent[] {
     if (!this.queryTree.fromClause.length) {
       return [];
     }
 
     return [
-      stringBit("FROM"),
+      textComponent("FROM"),
       ...commaSep(
         this.queryTree.fromClause.map((table) => [
-          stringBit(`${table.tableName} AS ${table.alias}`),
+          textComponent(`${table.tableName} AS ${table.alias}`),
         ])
       ),
     ];
   }
 
-  private getWhereQueryBits(): QueryBit[] {
+  private getWhereQueryBits(): QueryComponent[] {
     if (!this.queryTree.whereClause) {
       return [];
     }
 
-    const expr = this.queryTree.whereClause.toQueryBits(this.options);
+    const expr = this.queryTree.whereClause.toQueryComponents(this.options);
 
-    return [stringBit("WHERE"), ...expr];
+    return [textComponent("WHERE"), ...expr];
   }
 }

@@ -1,7 +1,8 @@
-import { QueryBit, stringBit } from "../query-stringifier/query-param";
-import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
+import { QueryComponent } from "../query-stringifier/query-component/query-component";
+import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
 import { commaSepExpressions } from "./comma-separated";
 import { Expression } from "./expression";
+import { textComponent } from "../query-stringifier/query-component/query-text-component";
 
 export class FunctionCallExpression implements Expression {
   public readonly type = "functionCall";
@@ -11,14 +12,16 @@ export class FunctionCallExpression implements Expression {
     this.args = args;
   }
 
-  public toQueryBits(config: QueryStringifierConfig): QueryBit[] {
+  public toQueryComponents(
+    config: QueryComponentSerializerConfig
+  ): QueryComponent[] {
     const argBits = commaSepExpressions(this.args, config);
 
     return [
-      stringBit(this.functionName, false),
-      stringBit("(", false),
+      textComponent(this.functionName, false),
+      textComponent("(", false),
       ...argBits,
-      stringBit(")"),
+      textComponent(")"),
     ];
   }
 }

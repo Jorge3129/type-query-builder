@@ -1,15 +1,20 @@
 import { QueryAndParams } from "./query";
-import { QueryBit, QueryStringBit, stringBit } from "./query-param";
+import { QueryComponent } from "./query-component/query-component";
+import {
+  QueryTextComponent,
+  isTextComponent,
+  textComponent,
+} from "./query-component/query-text-component";
 
 interface QueryAccumulator {
   paramIndex: number;
-  stringBits: QueryStringBit[];
+  queryTextComponents: QueryTextComponent[];
   params: any[];
 }
 
 export type PlaceholderGenerator = (paramIndex: number) => string;
 
-export const stringifyJoin = (bits: QueryBit[], separator: string) => {
+export const stringifyJoin = (bits: QueryComponent[], separator: string) => {
   return bits.reduce((acc, bit, index, { length }) => {
     const isLast = index === length - 1;
 
@@ -22,38 +27,41 @@ export const stringifyJoin = (bits: QueryBit[], separator: string) => {
 };
 
 export const stringifyQuery = (
-  queryBits: QueryBit[],
+  queryBits: QueryComponent[],
   placeholderGenerator: PlaceholderGenerator
 ): QueryAndParams => {
   const initAcc: QueryAccumulator = {
     paramIndex: 0,
-    stringBits: [],
+    queryTextComponents: [],
     params: [],
   };
 
-  const result = queryBits.reduce((acc, strOrParam) => {
-    const { paramIndex, stringBits, params } = acc;
+  const result = queryBits.reduce((acc, queryComponent) => {
+    const { paramIndex, queryTextComponents, params } = acc;
 
-    if (strOrParam.type === "string") {
+    if (isTextComponent(queryComponent)) {
       return {
         paramIndex: paramIndex,
-        stringBits: [...stringBits, strOrParam],
+        queryTextComponents: [...queryTextComponents, queryComponent],
         params,
       };
     }
 
     return {
       paramIndex: paramIndex + 1,
-      stringBits: [
-        ...stringBits,
-        stringBit(placeholderGenerator(paramIndex), strOrParam.spaceAfter),
+      queryTextComponents: [
+        ...queryTextComponents,
+        textComponent(
+          placeholderGenerator(paramIndex),
+          queryComponent.spaceAfter
+        ),
       ],
-      params: [...params, strOrParam.value],
+      params: [...params, queryComponent.value],
     };
   }, initAcc);
 
   return {
-    queryString: stringifyJoin(result.stringBits, " "),
+    queryString: stringifyJoin(result.queryTextComponents, " "),
     params: result.params,
   };
 };

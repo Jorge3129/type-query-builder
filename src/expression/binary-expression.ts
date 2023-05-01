@@ -1,6 +1,7 @@
-import { QueryBit, stringBit } from "../query-stringifier/query-param";
-import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
+import { QueryComponent } from "../query-stringifier/query-component/query-component";
+import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
 import { Expression } from "./expression";
+import { textComponent } from "../query-stringifier/query-component/query-text-component";
 
 export class BinaryOperatorExpression implements Expression {
   public readonly type = "binaryOperator";
@@ -11,11 +12,13 @@ export class BinaryOperatorExpression implements Expression {
     public readonly right: Expression
   ) {}
 
-  public toQueryBits(config: QueryStringifierConfig): QueryBit[] {
+  public toQueryComponents(
+    config: QueryComponentSerializerConfig
+  ): QueryComponent[] {
     return [
-      ...this.left.toQueryBits(config),
-      stringBit(this.operator),
-      ...this.right.toQueryBits(config),
+      ...this.left.toQueryComponents(config),
+      textComponent(this.operator),
+      ...this.right.toQueryComponents(config),
     ];
   }
 }

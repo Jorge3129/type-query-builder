@@ -1,6 +1,7 @@
-import { QueryBit, stringBit } from "../query-stringifier/query-param";
-import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
+import { QueryComponent } from "../query-stringifier/query-component/query-component";
+import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
 import { Expression } from "./expression";
+import { textComponent } from "../query-stringifier/query-component/query-text-component";
 
 export const identifier = (name: string, escapeChar = "") =>
   `${escapeChar}${name}${escapeChar}`;
@@ -22,8 +23,10 @@ export class VariableExpression implements Expression {
     return new VariableExpression([...this.path, name]);
   }
 
-  public toQueryBits({ escapeChar }: QueryStringifierConfig): QueryBit[] {
-    return [stringBit(this.stringify(escapeChar))];
+  public toQueryComponents({
+    escapeChar,
+  }: QueryComponentSerializerConfig): QueryComponent[] {
+    return [textComponent(this.stringify(escapeChar))];
   }
 }
 

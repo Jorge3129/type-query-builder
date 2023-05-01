@@ -1,6 +1,7 @@
-import { QueryBit, stringBit } from "../query-stringifier/query-param";
-import { QueryStringifierConfig } from "../query-stringifier/query-stringifier";
+import { QueryComponent } from "../query-stringifier/query-component/query-component";
+import { QueryComponentSerializerConfig } from "../query-stringifier/query-component-serializer";
 import { Expression } from "./expression";
+import { textComponent } from "../query-stringifier/query-component/query-text-component";
 
 export type OperatorType = "postfix" | "prefix";
 
@@ -13,12 +14,20 @@ export class UnaryOperatorExpression implements Expression {
     public readonly operatorType: OperatorType = "prefix"
   ) {}
 
-  public toQueryBits(config: QueryStringifierConfig): QueryBit[] {
+  public toQueryComponents(
+    config: QueryComponentSerializerConfig
+  ): QueryComponent[] {
     if (this.operatorType === "prefix") {
-      return [stringBit(this.operator), ...this.operand.toQueryBits(config)];
+      return [
+        textComponent(this.operator),
+        ...this.operand.toQueryComponents(config),
+      ];
     }
 
-    return [...this.operand.toQueryBits(config), stringBit(this.operator)];
+    return [
+      ...this.operand.toQueryComponents(config),
+      textComponent(this.operator),
+    ];
   }
 }
 
