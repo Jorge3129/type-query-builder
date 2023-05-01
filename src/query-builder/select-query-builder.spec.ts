@@ -12,6 +12,8 @@ class Post {
   text: string;
   author_id: number;
   likes: number;
+  isPublic: boolean;
+  createdAt: Date;
 }
 
 describe("SelectQueryBuilder", () => {
@@ -49,8 +51,9 @@ describe("SelectQueryBuilder", () => {
           .$and(u.name.$in("foo", "bar"))
           .$and(sum(u.age).$eq(1))
       )
-      .selectAs(({ u }) => u.name, "age")
-      .selectAs(({ p }) => p.author_id, "authorId");
+      .selectAs(({ u }) => u.name, "name")
+      .selectAs(({ p }) => p.author_id, "authorId")
+      .selectAs(({ p }) => p.createdAt, "date");
 
     console.log(qb.build());
 

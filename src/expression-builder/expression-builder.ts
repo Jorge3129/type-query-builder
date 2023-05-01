@@ -1,7 +1,7 @@
 import { Expression } from "../expression/expression";
 
-export interface ExprBuilder<T = unknown> {
-  build(): Expression;
+export interface ExprBuilder<T = any> {
+  build(): Expression<T>;
 }
 
 export const isExprBuilder = <T = unknown>(

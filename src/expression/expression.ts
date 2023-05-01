@@ -2,6 +2,6 @@ import { ToQueryFragments } from "../query-stringifier/query-fragment/to-query-f
 
 export type ExpressionType = string;
 
-export interface Expression extends ToQueryFragments {
+export interface Expression<T = any> extends ToQueryFragments {
   type: ExpressionType;
 }

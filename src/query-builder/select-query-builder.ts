@@ -61,17 +61,20 @@ export class SelectQueryBuilder<
     return this as SelectQueryBuilder<Context>;
   }
 
-  public selectAs<A extends string, E extends ExprBuilder<any>>(
-    expression: (context: Context, functions: typeof defaultFunctions) => E,
-    alias?: A
+  public selectAs<A extends string, T>(
+    expression: (
+      context: Context,
+      functions: typeof defaultFunctions
+    ) => ExprBuilder<T>,
+    alias: A
   ): SelectQueryBuilder<
     Context,
     {
-      [K in keyof MergeContext<
+      [K in keyof MergeContext<ReturnContext, A, T>]: MergeContext<
         ReturnContext,
         A,
-        ReverseAttribute<E>
-      >]: MergeContext<ReturnContext, A, ReverseAttribute<E>>[K];
+        T
+      >[K];
     }
   > {
     const expr = expression(
