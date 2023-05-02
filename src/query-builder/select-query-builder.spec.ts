@@ -34,6 +34,14 @@ describe("SelectQueryBuilder", () => {
     expect(params).toEqual(["%foo%", 1, 2]);
   });
 
+  it("should correctly space function args", () => {
+    const qb = new SelectQueryBuilder()
+      .from(User, "u")
+      .select(({ u }, { sum }) => sum(u.age));
+
+    expect(qb.build()).toBe(`SELECT SUM("u"."age") FROM "User" AS "u"`);
+  });
+
   it("should build smth", () => {
     const qb = new SelectQueryBuilder()
       .from(User, "u")
@@ -51,9 +59,9 @@ describe("SelectQueryBuilder", () => {
           .$and(u.name.$in("foo", "bar"))
           .$and(sum(u.age).$eq(1))
       )
-      .select(({ u }) => u.name.$in("foo", "bar"))
-      .select(({ p }) => p.author_id.$as("authorId"))
-      .select(({ p }) => p.createdAt.$as("date"));
+      .select(({ u }) => u.name);
+    // .select(({ p }) => p.author_id);
+    // .select(({ p }) => p.createdAt);
 
     console.log(qb.build());
 

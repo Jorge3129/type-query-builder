@@ -4,11 +4,11 @@ export const sepBy = (
   args: QueryFragment[][],
   separator: QueryFragment
 ): QueryFragment[] => {
-  return args.flatMap((argBits, index, { length }) => {
+  return args.flatMap((argFragments, index, { length }) => {
     if (index === length - 1) {
-      return argBits;
+      return argFragments;
     }
 
-    return [...argBits, separator];
+    return [...argFragments, separator];
   });
 };

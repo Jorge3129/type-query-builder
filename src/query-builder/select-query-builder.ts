@@ -9,7 +9,7 @@ import { Aliasable } from "../operators/alias";
 import { QueryAndParams } from "../query-stringifier/query-and-params";
 import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
-import { stringifyQuery } from "../query-stringifier/stringify-query";
+import { composeQueryFragments } from "../query-stringifier/stringify-query";
 import { ClassConstructor } from "../types/class-constructor";
 import { MergeContextWithTable, MergeContext } from "../types/merge-context";
 import {
@@ -102,7 +102,12 @@ export class SelectQueryBuilder<
   }
 
   public buildQueryAndParams(): QueryAndParams {
-    return stringifyQuery(this.getAllQueryBits(), (index) => `$${index + 1}`);
+    const placeholderGenerator = (index: number) => `$${index + 1}`;
+
+    return composeQueryFragments(
+      this.getAllQueryFragments(),
+      placeholderGenerator
+    );
   }
 
   public getMany(): ReturnContext[] {
@@ -113,22 +118,22 @@ export class SelectQueryBuilder<
     return {} as any;
   }
 
-  private getAllQueryBits(): QueryFragment[] {
-    const select = this.getSelectQueryBits();
-    const from = this.getFromQueryBits();
-    const where = this.getWhereQueryBits();
+  private getAllQueryFragments(): QueryFragment[] {
+    const select = this.getSelectQueryFragments();
+    const from = this.getFromQueryFragments();
+    const where = this.getWhereQueryFragments();
 
     return [...select, ...from, ...where].filter((c) => !!c);
   }
 
-  private getSelectQueryBits(): QueryFragment[] {
+  private getSelectQueryFragments(): QueryFragment[] {
     return [
       textFragment(`SELECT`),
       ...commaSepExpressions(this.queryTree.selectClause, this.options),
     ];
   }
 
-  private getFromQueryBits(): QueryFragment[] {
+  private getFromQueryFragments(): QueryFragment[] {
     if (!this.queryTree.fromClause.length) {
       return [];
     }
@@ -146,7 +151,7 @@ export class SelectQueryBuilder<
     ];
   }
 
-  private getWhereQueryBits(): QueryFragment[] {
+  private getWhereQueryFragments(): QueryFragment[] {
     if (!this.queryTree.whereClause) {
       return [];
     }

@@ -5,14 +5,25 @@ import { sepBy } from "./sep-by";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
 
 export const commaSep = (args: QueryFragment[][]): QueryFragment[] => {
-  const argQueryBits = args.map((bits, index, { length }) => {
+  const argQueryFragments = args.map((fragments, index, { length }) => {
     return index === length - 1
-      ? bits
-      : [...bits.slice(0, -1), bits[bits.length - 1].setSpaceAfter(false)];
+      ? fragments
+      : [
+          ...fragments.slice(0, -1),
+          fragments[fragments.length - 1].setSpaceAfter(false),
+        ];
   });
 
-  return sepBy(argQueryBits, textFragment(","));
+  return sepBy(argQueryFragments, textFragment(","));
 };
+
+export const setLastFragmentSpaceAfter = (
+  fragments: QueryFragment[],
+  spaceAfter: boolean
+): QueryFragment[] => [
+  ...fragments.slice(0, -1),
+  fragments[fragments.length - 1].setSpaceAfter(spaceAfter),
+];
 
 export const commaSepExpressions = (
   args: Expression[],

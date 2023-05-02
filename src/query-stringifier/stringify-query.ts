@@ -14,20 +14,21 @@ interface QueryAccumulator {
 
 export type PlaceholderGenerator = (paramIndex: number) => string;
 
-export const stringifyJoin = (bits: QueryFragment[], separator: string) => {
-  return bits.reduce((acc, bit, index, { length }) => {
+export const joinWithSpaceAfter = (
+  fragments: QueryFragment[],
+  separator: string
+) => {
+  return fragments.reduce((acc, fragment, index, { length }) => {
     const isLast = index === length - 1;
+    const newSeparator = fragment.spaceAfter && !isLast ? separator : "";
+    const newFragment = fragment.value + newSeparator;
 
-    const newSeparator = bit.spaceAfter && !isLast ? separator : "";
-
-    const newBit = bit.value + newSeparator;
-
-    return acc + newBit;
+    return acc + newFragment;
   }, "");
 };
 
-export const stringifyQuery = (
-  queryBits: QueryFragment[],
+export const composeQueryFragments = (
+  queryFragments: QueryFragment[],
   placeholderGenerator: PlaceholderGenerator
 ): QueryAndParams => {
   const initAcc: QueryAccumulator = {
@@ -36,7 +37,7 @@ export const stringifyQuery = (
     params: [],
   };
 
-  const result = queryBits.reduce((acc, queryComponent) => {
+  const result = queryFragments.reduce((acc, queryComponent) => {
     const { paramIndex, queryTextComponents, params } = acc;
 
     if (isTextQueryFragment(queryComponent)) {
@@ -61,7 +62,7 @@ export const stringifyQuery = (
   }, initAcc);
 
   return {
-    queryString: stringifyJoin(result.queryTextComponents, " "),
+    queryString: joinWithSpaceAfter(result.queryTextComponents, " "),
     params: result.params,
   };
 };
