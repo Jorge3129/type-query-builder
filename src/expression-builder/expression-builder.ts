@@ -1,7 +1,8 @@
 import { Expression } from "../expression/expression";
 
-export interface ExprBuilder<T = any> {
+export interface ExprBuilder<T = any, K extends string = string> {
   build(): Expression<T>;
+  key(): K;
 }
 
 export const isExprBuilder = <T = unknown>(

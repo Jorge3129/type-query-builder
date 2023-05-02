@@ -5,7 +5,10 @@ import { Expression as Ex } from "../expression/expression";
 import { InExpression } from "../expression/in-expression";
 
 export interface In<T> {
-  $in(...args: (T | ExprBuilder<T>)[]): BoolExprBuilder;
+  $in(
+    requiredFirstArg: T | ExprBuilder<T>,
+    ...restArgs: (T | ExprBuilder<T>)[]
+  ): BoolExprBuilder;
 }
 
 export const inOpDict: OperatorDictionary<In<any>> = {

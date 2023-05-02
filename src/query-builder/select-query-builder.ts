@@ -5,13 +5,13 @@ import { commaSep, commaSepExpressions } from "../expression/comma-separated";
 import { LiteralExpression } from "../expression/literal-expression";
 import { VariableExpression } from "../expression/variable-expression";
 import { defaultFunctions } from "../functions/default-functions";
+import { Aliasable } from "../operators/alias";
 import { QueryAndParams } from "../query-stringifier/query-and-params";
 import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
 import { stringifyQuery } from "../query-stringifier/stringify-query";
 import { ClassConstructor } from "../types/class-constructor";
 import { MergeContextWithTable, MergeContext } from "../types/merge-context";
-import { ReverseAttribute } from "../types/table";
 import {
   QueryBuilderOptions,
   getDefaultQueryBuilderOptions,
@@ -61,39 +61,18 @@ export class SelectQueryBuilder<
     return this as SelectQueryBuilder<Context>;
   }
 
-  public selectAs<A extends string, T>(
+  public select<A extends string, T, I>(
     expression: (
-      context: Context,
+      context: {
+        [TblName in keyof Context]: {
+          [AttrName in keyof Context[TblName]]: Context[TblName][AttrName] &
+            (Context[TblName][AttrName] extends ExprBuilder<infer I>
+              ? Aliasable<I>
+              : Aliasable);
+        };
+      },
       functions: typeof defaultFunctions
-    ) => ExprBuilder<T>,
-    alias: A
-  ): SelectQueryBuilder<
-    Context,
-    {
-      [K in keyof MergeContext<ReturnContext, A, T>]: MergeContext<
-        ReturnContext,
-        A,
-        T
-      >[K];
-    }
-  > {
-    const expr = expression(
-      createExprBuilder(this.options.operators),
-      defaultFunctions
-    ).build();
-
-    this.queryTree.selectClause.push(
-      alias ? new AliasExpression(expr, new LiteralExpression(alias)) : expr
-    );
-
-    return this as any;
-  }
-
-  public select<A extends string, T>(
-    expression: (
-      context: Context,
-      functions: typeof defaultFunctions
-    ) => ExprBuilder<T>
+    ) => ExprBuilder<T, A>
   ): SelectQueryBuilder<
     Context,
     {

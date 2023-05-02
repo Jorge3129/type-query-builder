@@ -51,11 +51,13 @@ describe("SelectQueryBuilder", () => {
           .$and(u.name.$in("foo", "bar"))
           .$and(sum(u.age).$eq(1))
       )
-      .selectAs(({ u }) => u.name, "name")
-      .selectAs(({ p }) => p.author_id, "authorId")
-      .selectAs(({ p }) => p.createdAt, "date");
+      .select(({ u }) => u.name.$in("foo", "bar"))
+      .select(({ p }) => p.author_id.$as("authorId"))
+      .select(({ p }) => p.createdAt.$as("date"));
 
     console.log(qb.build());
+
+    qb.getOne();
 
     expect(qb.build()).toBeDefined();
   });
