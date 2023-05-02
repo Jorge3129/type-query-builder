@@ -5,12 +5,12 @@ import { commaSep, commaSepExpressions } from "../expression/comma-separated";
 import { LiteralExpression } from "../expression/literal-expression";
 import { VariableExpression } from "../expression/variable-expression";
 import { defaultFunctions } from "../functions/default-functions";
-import { Aliasable } from "../operators/alias";
 import { QueryAndParams } from "../query-stringifier/query-and-params";
 import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
 import { composeQueryFragments } from "../query-stringifier/stringify-query";
 import { ClassConstructor } from "../types/class-constructor";
+import { DeepAliasable } from "../types/deep-aliasable";
 import { MergeContextWithTable, MergeContext } from "../types/merge-context";
 import {
   QueryBuilderOptions,
@@ -65,10 +65,9 @@ export class SelectQueryBuilder<
     expression: (
       context: {
         [TblName in keyof Context]: {
-          [AttrName in keyof Context[TblName]]: Context[TblName][AttrName] &
-            (Context[TblName][AttrName] extends ExprBuilder<infer I>
-              ? Aliasable<I>
-              : Aliasable);
+          [AttrName in keyof Context[TblName]]: Context[TblName][AttrName] extends ExprBuilder
+            ? DeepAliasable<Context[TblName][AttrName]>
+            : Context[TblName][AttrName];
         };
       },
       functions: typeof defaultFunctions

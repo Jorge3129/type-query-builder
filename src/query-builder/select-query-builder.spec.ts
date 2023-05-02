@@ -34,6 +34,23 @@ describe("SelectQueryBuilder", () => {
     expect(params).toEqual(["%foo%", 1, 2]);
   });
 
+  it("should create alias", () => {
+    const qb = new SelectQueryBuilder()
+      .from(User, "u")
+      .where(({ u }) => u.name.$like("%foo%").$and(litExp(1).$eq(2)))
+      .select(({ u }) => u.age.$plus(u.id.$times(litExp(2))).$as("g"));
+
+    const { queryString, params } = qb.buildQueryAndParams();
+
+    qb.getOne();
+
+    expect(queryString).toBe(
+      `SELECT "u"."age" + "u"."id" * $1 AS "g" FROM "User" AS "u" WHERE "u"."name" LIKE $2 AND $3 = $4`
+    );
+
+    expect(params).toEqual([2, "%foo%", 1, 2]);
+  });
+
   it("should correctly space function args", () => {
     const qb = new SelectQueryBuilder()
       .from(User, "u")

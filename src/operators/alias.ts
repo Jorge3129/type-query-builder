@@ -6,7 +6,6 @@ import { OperatorDictionary } from "./operator-dictionary";
 
 export interface Aliasable<T = never> {
   $as<Alias extends string>(alias: Alias): ExprBuilder<T, Alias>;
-  $as<Alias extends string>(alias: Alias): ExprBuilder<T, Alias>;
 }
 
 export const aliasOpDict: OperatorDictionary<Aliasable> = {
