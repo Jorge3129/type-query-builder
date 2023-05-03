@@ -8,13 +8,13 @@ import {
 
 interface QueryAccumulator {
   paramIndex: number;
-  queryTextComponents: TextQueryFragment[];
+  textFragments: TextQueryFragment[];
   params: any[];
 }
 
 export type PlaceholderGenerator = (paramIndex: number) => string;
 
-export const joinWithSpaceAfter = (
+export const joinTextFragments = (
   fragments: QueryFragment[],
   separator: string
 ) => {
@@ -27,42 +27,39 @@ export const joinWithSpaceAfter = (
   }, "");
 };
 
-export const composeQueryFragments = (
+export const compileQueryFragments = (
   queryFragments: QueryFragment[],
   placeholderGenerator: PlaceholderGenerator
 ): QueryAndParams => {
   const initAcc: QueryAccumulator = {
     paramIndex: 0,
-    queryTextComponents: [],
+    textFragments: [],
     params: [],
   };
 
-  const result = queryFragments.reduce((acc, queryComponent) => {
-    const { paramIndex, queryTextComponents, params } = acc;
+  const result = queryFragments.reduce((acc, fragment) => {
+    const { paramIndex, textFragments, params } = acc;
 
-    if (isTextQueryFragment(queryComponent)) {
+    if (isTextQueryFragment(fragment)) {
       return {
         paramIndex: paramIndex,
-        queryTextComponents: [...queryTextComponents, queryComponent],
+        textFragments: [...textFragments, fragment],
         params,
       };
     }
 
     return {
       paramIndex: paramIndex + 1,
-      queryTextComponents: [
-        ...queryTextComponents,
-        textFragment(
-          placeholderGenerator(paramIndex),
-          queryComponent.spaceAfter
-        ),
+      textFragments: [
+        ...textFragments,
+        textFragment(placeholderGenerator(paramIndex), fragment.spaceAfter),
       ],
-      params: [...params, queryComponent.value],
+      params: [...params, fragment.value],
     };
   }, initAcc);
 
   return {
-    queryString: joinWithSpaceAfter(result.queryTextComponents, " "),
+    queryString: joinTextFragments(result.textFragments, " "),
     params: result.params,
   };
 };

@@ -8,7 +8,7 @@ import { defaultFunctions } from "../functions/default-functions";
 import { QueryAndParams } from "../query-stringifier/query-and-params";
 import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
-import { composeQueryFragments } from "../query-stringifier/stringify-query";
+import { compileQueryFragments } from "../query-stringifier/compile-query-fragments";
 import { ClassConstructor } from "../types/class-constructor";
 import { DeepAliasable } from "../types/deep-aliasable";
 import { MergeContextWithTable, MergeContext } from "../types/merge-context";
@@ -103,7 +103,7 @@ export class SelectQueryBuilder<
   public buildQueryAndParams(): QueryAndParams {
     const placeholderGenerator = (index: number) => `$${index + 1}`;
 
-    return composeQueryFragments(
+    return compileQueryFragments(
       this.getAllQueryFragments(),
       placeholderGenerator
     );
