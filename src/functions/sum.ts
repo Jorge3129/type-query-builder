@@ -10,10 +10,10 @@ import { defaultOperators } from "../operators/default-operators";
 
 export const sum = (arg: number | ExprBuilder<number>): NumExprBuilder => {
   return createExprBuilder(
-    defaultOperators,
     new FunctionCallExpression(
       "SUM",
       isExprBuilder(arg) ? arg.build() : new LiteralExpression(arg)
-    )
+    ),
+    defaultOperators
   );
 };

@@ -1,4 +1,4 @@
-import { litExp } from "../expression-builder/lit-exp";
+import { $litExp } from "../expression-builder/utils/lit-exp";
 import { SelectQueryBuilder } from "./select-query-builder";
 
 class User {
@@ -20,7 +20,7 @@ describe("SelectQueryBuilder", () => {
   it("should build where clause", () => {
     const qb = new SelectQueryBuilder()
       .from(User, "u")
-      .where(({ u }) => u.name.$like("%foo%").$and(litExp(1).$eq(2)))
+      .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
       .select(({ u }) => u.age);
 
     const { queryString, params } = qb.buildQueryAndParams();
@@ -37,7 +37,7 @@ describe("SelectQueryBuilder", () => {
   it("should create alias", () => {
     const qb = new SelectQueryBuilder()
       .from(User, "u")
-      .where(({ u }) => u.name.$like("%foo%").$and(litExp(1).$eq(2)))
+      .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
       .select(({ u }) => u.age.$plus(u.id.$times(2)).$as("g"));
 
     const { queryString, params } = qb.buildQueryAndParams();
@@ -72,7 +72,7 @@ describe("SelectQueryBuilder", () => {
           .$and(p.author_id.$gt(1))
           .$or(u.id.$isNotNull())
           .$and(u.name.$between("a", "b"))
-          .$and(litExp(1).$eq(1))
+          .$and($litExp(1).$eq(1))
           .$and(u.name.$in("foo", "bar"))
           .$and(sum(u.age).$eq(1))
       )

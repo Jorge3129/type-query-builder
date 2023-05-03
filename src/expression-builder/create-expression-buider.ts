@@ -1,9 +1,6 @@
 import { Expression } from "../expression/expression";
 import { LiteralExpression } from "../expression/literal-expression";
-import {
-  VariableExpression,
-  isVariableExpression,
-} from "../expression/variable-expression";
+import { isVariableExpression } from "../expression/variable-expression";
 import { isExprBuilder } from "./expression-builder";
 
 export interface MethodDictionary {
@@ -11,8 +8,8 @@ export interface MethodDictionary {
 }
 
 export function createHandler(
-  methods: MethodDictionary = {},
-  currentExpr: Expression = new VariableExpression()
+  currentExpr: Expression,
+  methods: MethodDictionary = {}
 ): ProxyHandler<object> {
   return {
     get: function (_: object, prop: PropertyKey) {
@@ -31,7 +28,7 @@ export function createHandler(
 
           const newExpr: Expression = methods[prop](...builtArgs);
 
-          return new Proxy({}, createHandler(methods, newExpr));
+          return new Proxy({}, createHandler(newExpr, methods));
         };
       }
 
@@ -41,12 +38,12 @@ export function createHandler(
 
       const newExpr = currentExpr.addPathItem(String(prop));
 
-      return new Proxy({}, createHandler(methods, newExpr));
+      return new Proxy({}, createHandler(newExpr, methods));
     },
   };
 }
 
 export const createExprBuilder = <T = unknown>(
-  methods?: MethodDictionary,
-  currentExpr?: Expression
-): T => new Proxy({}, createHandler(methods, currentExpr)) as T;
+  currentExpr: Expression,
+  methods?: MethodDictionary
+): T => new Proxy({}, createHandler(currentExpr, methods)) as T;

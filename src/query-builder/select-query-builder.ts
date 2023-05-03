@@ -54,7 +54,7 @@ export class SelectQueryBuilder<
     ) => ExprBuilder<boolean>
   ): SelectQueryBuilder<Context> {
     this.queryTree.whereClause = condition(
-      createExprBuilder(this.options.operators),
+      createExprBuilder(new VariableExpression(), this.options.operators),
       defaultFunctions
     ).build();
 
@@ -83,7 +83,7 @@ export class SelectQueryBuilder<
     }
   > {
     const expr = expression(
-      createExprBuilder(this.options.operators),
+      createExprBuilder(new VariableExpression(), this.options.operators),
       defaultFunctions
     ).build();
 
@@ -140,12 +140,12 @@ export class SelectQueryBuilder<
     return [
       textFragment("FROM"),
       ...commaSep(
-        this.queryTree.fromClause.map((table) => [
-          ...new AliasExpression(
+        this.queryTree.fromClause.map((table) =>
+          new AliasExpression(
             new VariableExpression([table.tableName]),
             new LiteralExpression(table.alias)
-          ).toQueryFragments(this.options),
-        ])
+          ).toQueryFragments(this.options)
+        )
       ),
     ];
   }
