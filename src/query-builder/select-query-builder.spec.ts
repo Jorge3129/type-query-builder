@@ -38,7 +38,7 @@ describe("SelectQueryBuilder", () => {
     const qb = new SelectQueryBuilder()
       .from(User, "u")
       .where(({ u }) => u.name.$like("%foo%").$and(litExp(1).$eq(2)))
-      .select(({ u }) => u.age.$plus(u.id.$times(litExp(2))).$as("g"));
+      .select(({ u }) => u.age.$plus(u.id.$times(2)).$as("g"));
 
     const { queryString, params } = qb.buildQueryAndParams();
 

@@ -5,8 +5,7 @@ import { Expression as Ex } from "../expression/expression";
 import { OperatorDictionary } from "./operator-dictionary";
 
 export interface Like<T> {
-  $like(other: T): BoolExprBuilder;
-  $like(other: ExprBuilder<T>): BoolExprBuilder;
+  $like(other: T | ExprBuilder<T>): BoolExprBuilder;
 }
 
 export const likeOpDict: OperatorDictionary<Like<any>> = {

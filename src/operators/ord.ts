@@ -5,17 +5,11 @@ import { Expression as Ex } from "../expression/expression";
 import { OperatorDictionary } from "./operator-dictionary";
 
 export interface Ord<T> {
-  $gt(other: T): BoolExprBuilder;
-  $gt(other: ExprBuilder<T>): BoolExprBuilder;
+  $gt(other: T | ExprBuilder<T>): BoolExprBuilder;
+  $gte(other: T | ExprBuilder<T>): BoolExprBuilder;
 
-  $gte(other: T): BoolExprBuilder;
-  $gte(other: ExprBuilder<T>): BoolExprBuilder;
-
-  $lt(other: T): BoolExprBuilder;
-  $lt(other: ExprBuilder<T>): BoolExprBuilder;
-
-  $lte(other: T): BoolExprBuilder;
-  $lte(other: ExprBuilder<T>): BoolExprBuilder;
+  $lt(other: T | ExprBuilder<T>): BoolExprBuilder;
+  $lte(other: T | ExprBuilder<T>): BoolExprBuilder;
 }
 
 export const ordOpDict: OperatorDictionary<Ord<any>> = {

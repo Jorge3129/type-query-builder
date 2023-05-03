@@ -4,12 +4,9 @@ import { binOp } from "../expression/binary-expression";
 import { OperatorDictionary } from "./operator-dictionary";
 import { Expression as Ex } from "../expression/expression";
 
-export interface Eq<T, Extension = BoolExprBuilder> {
-  $eq(other: T): BoolExprBuilder & Extension;
-  $eq(other: ExprBuilder<T>): BoolExprBuilder & Extension;
-
-  $neq(other: T): BoolExprBuilder & Extension;
-  $neq(other: ExprBuilder<T>): BoolExprBuilder & Extension;
+export interface Eq<T> {
+  $eq(other: T | ExprBuilder<T>): BoolExprBuilder;
+  $neq(other: T | ExprBuilder<T>): BoolExprBuilder;
 }
 
 export const eqOpDict: OperatorDictionary<Eq<any>> = {

@@ -5,20 +5,11 @@ import { Attribute } from "../types/attribute";
 import { OperatorDictionary } from "./operator-dictionary";
 
 export interface Arithm<T = any> {
-  $plus(other: T): Attribute<T>;
-  $plus(other: ExprBuilder<T>): Attribute<T>;
-
-  $minus(other: T): Attribute<T>;
-  $minus(other: ExprBuilder<T>): Attribute<T>;
-
-  $times(other: T): Attribute<T>;
-  $times(other: ExprBuilder<T>): Attribute<T>;
-
-  $div(other: T): Attribute<T>;
-  $div(other: ExprBuilder<T>): Attribute<T>;
-
-  $mod(other: T): Attribute<T>;
-  $mod(other: ExprBuilder<T>): Attribute<T>;
+  $plus(other: T | ExprBuilder<T>): Attribute<T>;
+  $minus(other: T | ExprBuilder<T>): Attribute<T>;
+  $times(other: T | ExprBuilder<T>): Attribute<T>;
+  $div(other: T | ExprBuilder<T>): Attribute<T>;
+  $mod(other: T | ExprBuilder<T>): Attribute<T>;
 }
 
 export const arithmOpDict: OperatorDictionary<Arithm<any>> = {
