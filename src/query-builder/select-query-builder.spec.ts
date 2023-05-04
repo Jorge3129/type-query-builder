@@ -1,3 +1,4 @@
+import { postgresOptions } from "../driver-options/postgres/postgres.options";
 import { createQueryBuilderSuite } from "../query-builder-suite/create-query-builder-suite";
 
 class User {
@@ -16,9 +17,8 @@ class Post {
 }
 
 describe("SelectQueryBuilder", () => {
-  const { selectQueryBuilder, $litExp } = createQueryBuilderSuite({
-    escapeChar: "",
-  });
+  const { selectQueryBuilder, $litExp } =
+    createQueryBuilderSuite(postgresOptions);
 
   it("should build where clause", () => {
     const qb = selectQueryBuilder()

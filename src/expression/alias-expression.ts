@@ -2,8 +2,8 @@ import { QueryFragment } from "../query-stringifier/query-fragment/query-fragmen
 import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
 import { Expression } from "./expression";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
-import { identifier } from "./variable-expression";
 import { LiteralExpression } from "./literal-expression";
+import { escapeIdentifier } from "../utils/escape-identifier";
 
 export class AliasExpression implements Expression {
   public readonly type = "binaryOperator";
@@ -17,7 +17,9 @@ export class AliasExpression implements Expression {
     return [
       ...this.expr.toQueryFragments(config),
       textFragment("AS"),
-      textFragment(identifier(this.alias.value, config.escapeChar)),
+      textFragment(
+        escapeIdentifier(this.alias.value, config.identifierEscapeChararacter)
+      ),
     ];
   }
 }

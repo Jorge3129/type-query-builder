@@ -3,7 +3,7 @@ import { defaultOperators } from "../operators/default-operators";
 
 export type QueryBuilderOptions = {
   operators?: MethodDictionary;
-  escapeChar: string;
+  identifierEscapeChararacter: string;
 };
 
 export const getDefaultQueryBuilderOptions = (
@@ -11,6 +11,6 @@ export const getDefaultQueryBuilderOptions = (
 ): Required<QueryBuilderOptions> => {
   return {
     operators: options.operators ?? defaultOperators,
-    escapeChar: options?.escapeChar,
+    identifierEscapeChararacter: options?.identifierEscapeChararacter,
   };
 };

@@ -20,7 +20,10 @@ class Post {
   createdAt: Date;
 }
 
-const qb = new SelectQueryBuilder()
+const { selectQueryBuilder, $litExp } =
+  createQueryBuilderSuite(postgresOptions);
+
+const qb = selectQueryBuilder()
   .from(User, "u")
   .from(Post, "p")
   .where(({ u, p }, { sum }) =>

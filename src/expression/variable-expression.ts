@@ -2,9 +2,7 @@ import { QueryFragment } from "../query-stringifier/query-fragment/query-fragmen
 import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
 import { Expression } from "./expression";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
-
-export const identifier = (name: string, escapeChar = "") =>
-  `${escapeChar}${name}${escapeChar}`;
+import { escapeIdentifier } from "../utils/escape-identifier";
 
 const VAR_EXPR_TYPE = "attribute";
 
@@ -13,20 +11,18 @@ export class VariableExpression implements Expression {
 
   constructor(public readonly path: string[] = []) {}
 
-  public stringify(escapeChar = '"'): string {
-    return this.path
-      .map((pathBit) => identifier(pathBit, escapeChar))
-      .join(".");
-  }
-
   public addPathItem(name: string): VariableExpression {
     return new VariableExpression([...this.path, name]);
   }
 
-  public toQueryFragments({
-    escapeChar,
-  }: ToQueryFragmentsConfig): QueryFragment[] {
-    return [textFragment(this.stringify(escapeChar))];
+  public toQueryFragments(config: ToQueryFragmentsConfig): QueryFragment[] {
+    const pathString = this.path
+      .map((pathBit) =>
+        escapeIdentifier(pathBit, config.identifierEscapeChararacter)
+      )
+      .join(".");
+
+    return [textFragment(pathString)];
   }
 }
 

@@ -1,7 +1,7 @@
 import { QueryFragment } from "./query-fragment";
 
 export interface ToQueryFragmentsConfig {
-  escapeChar: string;
+  identifierEscapeChararacter: string;
 }
 
 export interface ToQueryFragments {
