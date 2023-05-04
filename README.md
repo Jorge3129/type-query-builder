@@ -43,7 +43,7 @@ const qb = selectQueryBuilder()
   .select(({ p }) => p.author_id)
   .select(({ p }) => p.createdAt);
 
-const result = qb.getOne();
+const result = await qb.getOne();
 ```
 
 This will construct the following query:

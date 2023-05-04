@@ -109,11 +109,11 @@ export class SelectQueryBuilder<
     );
   }
 
-  public getMany(): ReturnContext[] {
+  public async getMany(): Promise<ReturnContext[]> {
     return [];
   }
 
-  public getOne(): ReturnContext {
+  public async getOne(): Promise<ReturnContext> {
     return {} as any;
   }
 
