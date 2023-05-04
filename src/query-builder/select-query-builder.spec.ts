@@ -1,5 +1,4 @@
-import { $litExp } from "../expression-builder/utils/lit-exp";
-import { SelectQueryBuilder } from "./select-query-builder";
+import { createQueryBuilderSuite } from "../query-builder-suite/create-query-builder-suite";
 
 class User {
   id: number;
@@ -17,8 +16,12 @@ class Post {
 }
 
 describe("SelectQueryBuilder", () => {
+  const { selectQueryBuilder, $litExp } = createQueryBuilderSuite({
+    escapeChar: "",
+  });
+
   it("should build where clause", () => {
-    const qb = new SelectQueryBuilder()
+    const qb = selectQueryBuilder()
       .from(User, "u")
       .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
       .select(({ u }) => u.age);
@@ -35,7 +38,7 @@ describe("SelectQueryBuilder", () => {
   });
 
   it("should create alias", () => {
-    const qb = new SelectQueryBuilder()
+    const qb = selectQueryBuilder()
       .from(User, "u")
       .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
       .select(({ u }) => u.age.$plus(u.id.$times(2)).$as("g"));
@@ -52,7 +55,7 @@ describe("SelectQueryBuilder", () => {
   });
 
   it("should correctly space function args", () => {
-    const qb = new SelectQueryBuilder()
+    const qb = selectQueryBuilder()
       .from(User, "u")
       .select(({ u }, { sum }) => sum(u.age));
 
@@ -60,7 +63,7 @@ describe("SelectQueryBuilder", () => {
   });
 
   it("should build smth", () => {
-    const qb = new SelectQueryBuilder()
+    const qb = selectQueryBuilder()
       .from(User, "u")
       .from(Post, "p")
       .where(({ u, p }, { sum }) =>

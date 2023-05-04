@@ -23,9 +23,9 @@ export class SelectQueryBuilder<
   ReturnContext extends {} = {}
 > {
   private queryTree = new SelectQueryTree();
-  private readonly options: QueryBuilderOptions;
+  private readonly options: Required<QueryBuilderOptions>;
 
-  constructor(options?: Partial<QueryBuilderOptions>) {
+  constructor(options: QueryBuilderOptions) {
     this.options = getDefaultQueryBuilderOptions(options);
   }
 
