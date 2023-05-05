@@ -1,5 +1,4 @@
 import { QueryBuilderOptions } from "../query-builder/query-builder-options";
-import { escapeIdentifier } from "../utils/escape-identifier";
 import { isExpressionQueryFragment } from "./query-fragment/expression-query-fragment";
 import { isIdentifierQueryFragment } from "./query-fragment/identifier-query-fragment";
 import {
@@ -17,11 +16,7 @@ export const preprocessExtendedFragments = (
     if (isIdentifierQueryFragment(fragment)) {
       return [
         textFragment(
-          fragment.path
-            .map((id) =>
-              escapeIdentifier(id, config.identifierEscapeChararacter)
-            )
-            .join("."),
+          config.escapeIdentifier(fragment.name),
           fragment.spaceAfter
         ),
       ];

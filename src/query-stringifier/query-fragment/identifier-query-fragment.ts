@@ -8,19 +8,19 @@ export class IdentifierQueryFragment
   public readonly type = IDENTIFIER_FRAGMENT_TYPE;
 
   constructor(
-    public readonly path: string[],
+    public readonly name: string,
     public readonly spaceAfter = true
   ) {}
 
   public setSpaceAfter(spaceAfter: boolean) {
-    return new IdentifierQueryFragment(this.path, spaceAfter);
+    return new IdentifierQueryFragment(this.name, spaceAfter);
   }
 }
 
 export const identifierFragment = (
-  path: string[],
+  name: string,
   spaceAfter = true
-): IdentifierQueryFragment => new IdentifierQueryFragment(path, spaceAfter);
+): IdentifierQueryFragment => new IdentifierQueryFragment(name, spaceAfter);
 
 export const isIdentifierQueryFragment = (
   val: unknown

@@ -17,7 +17,7 @@ export class AliasExpression implements Expression {
     return [
       expressionFragment(this.expr),
       textFragment("AS"),
-      identifierFragment([this.alias.value]),
+      identifierFragment(this.alias.value),
     ];
   }
 }
