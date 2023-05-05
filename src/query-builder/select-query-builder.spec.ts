@@ -1,4 +1,5 @@
 import { postgresOptions } from "../driver-options/postgres/postgres.options";
+import JoinType from "../expression/clauses/join-clause";
 import { createQueryBuilderSuite } from "../query-builder-suite/create-query-builder-suite";
 
 class User {
@@ -26,7 +27,7 @@ describe("SelectQueryBuilder", () => {
       .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
       .select(({ u }) => u.age);
 
-    const { query: queryString, params } = qb.buildQueryAndParams();
+    const { query: queryString, params } = qb.getQueryAndParams();
 
     qb.getOne();
 
@@ -43,7 +44,7 @@ describe("SelectQueryBuilder", () => {
       .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
       .select(({ u }) => u.age.$plus(u.id.$times(2)).$as("g"));
 
-    const { query: queryString, params } = qb.buildQueryAndParams();
+    const { query: queryString, params } = qb.getQueryAndParams();
 
     qb.getOne();
 
@@ -54,12 +55,33 @@ describe("SelectQueryBuilder", () => {
     expect(params).toEqual([2, "%foo%", 1, 2]);
   });
 
+  describe("JOIN", () => {
+    it("should create INNER JOIN", () => {
+      const qb = selectQueryBuilder()
+        .from(User, "u")
+        .join(JoinType.INNER_JOIN, Post, "p", ({ p, u }) =>
+          p.author_id.$eq(u.id)
+        )
+        .select(({ u }) => u.age);
+
+      const { query } = qb.getQueryAndParams();
+
+      qb.getOne();
+
+      expect(query).toBe(
+        `SELECT "u"."age" FROM "User" AS "u" INNER JOIN "Post" AS "p" ON "p"."author_id" = "u"."id"`
+      );
+    });
+  });
+
   it("should correctly space function args", () => {
     const qb = selectQueryBuilder()
       .from(User, "u")
       .select(({ u }, { sum }) => sum(u.age));
 
-    expect(qb.build()).toBe(`SELECT SUM("u"."age") FROM "User" AS "u"`);
+    expect(qb.getQueryAndParams().query).toBe(
+      `SELECT SUM("u"."age") FROM "User" AS "u"`
+    );
   });
 
   it("should build smth", () => {
@@ -83,10 +105,10 @@ describe("SelectQueryBuilder", () => {
     // .select(({ p }) => p.author_id);
     // .select(({ p }) => p.createdAt);
 
-    console.log(qb.build());
+    console.log(qb.getQueryAndParams().query);
 
     qb.getOne();
 
-    expect(qb.build()).toBeDefined();
+    expect(qb.getQueryAndParams()).toBeDefined();
   });
 });

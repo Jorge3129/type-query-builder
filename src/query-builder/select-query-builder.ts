@@ -13,14 +13,14 @@ import {
 } from "./query-builder-options";
 import { SelectQueryTree } from "./select-query-tree";
 import { SelectStatement } from "../expression/clauses/select-statement";
-import { AliasExpression } from "../expression/alias-expression";
-import { LiteralExpression } from "../expression/literal-expression";
+import JoinType, { JoinClause } from "../expression/clauses/join-clause";
+import { tableExpression } from "../expression/utils/table-expression";
 
 export class SelectQueryBuilder<
   Context extends {} = {},
   ReturnContext extends {} = {}
 > {
-  private queryTree = new SelectQueryTree();
+  private readonly queryTree = new SelectQueryTree();
   private readonly options: Required<QueryBuilderOptions>;
 
   constructor(options: QueryBuilderOptions) {
@@ -37,11 +37,39 @@ export class SelectQueryBuilder<
       Model
     >]: MergeContextWithTable<Context, Alias, Model>[K];
   }> {
-    this.queryTree.fromClause.push(
-      new AliasExpression(
-        new VariableExpression([table.name]),
-        new LiteralExpression(alias)
-      )
+    this.queryTree.fromClause.push(tableExpression(table.name, alias));
+
+    return this as any;
+  }
+
+  public join<Model, Alias extends string>(
+    joinType: JoinType,
+    table: ClassConstructor<Model>,
+    alias: Alias,
+    onCondition: (
+      context: {
+        [K in keyof MergeContextWithTable<
+          Context,
+          Alias,
+          Model
+        >]: MergeContextWithTable<Context, Alias, Model>[K];
+      },
+      functions: typeof defaultFunctions
+    ) => ExprBuilder<boolean>
+  ): SelectQueryBuilder<{
+    [K in keyof MergeContextWithTable<
+      Context,
+      Alias,
+      Model
+    >]: MergeContextWithTable<Context, Alias, Model>[K];
+  }> {
+    const onExpression = onCondition(
+      createExprBuilder(new VariableExpression(), this.options.operators),
+      defaultFunctions
+    ).build();
+
+    this.queryTree.joins.push(
+      new JoinClause(joinType, tableExpression(table.name, alias), onExpression)
     );
 
     return this as any;
@@ -92,11 +120,7 @@ export class SelectQueryBuilder<
     return this as any;
   }
 
-  public build(): string {
-    return this.buildQueryAndParams().query;
-  }
-
-  public buildQueryAndParams(): QueryAndParams {
+  public getQueryAndParams(): QueryAndParams {
     return compileQueryFragments(
       this.getSelectStatement().toQueryFragments(),
       this.options
@@ -107,6 +131,7 @@ export class SelectQueryBuilder<
     return new SelectStatement(
       this.queryTree.selectClause,
       this.queryTree.fromClause,
+      this.queryTree.joins,
       this.queryTree.whereClause
     );
   }
