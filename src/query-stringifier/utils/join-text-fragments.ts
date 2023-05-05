@@ -1,4 +1,4 @@
-import { QueryFragment } from "./query-fragment/query-fragment";
+import { QueryFragment } from "../query-fragment/query-fragment";
 
 export const joinTextFragments = (
   fragments: QueryFragment[],

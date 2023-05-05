@@ -7,6 +7,7 @@ import {
 } from "./query-fragment/query-fragment";
 import { textFragment } from "./query-fragment/text-query-fragment";
 import { ToQueryFragmentsConfig } from "./query-fragment/to-query-fragments";
+import { setLastFragmentSpaceAfter } from "./utils/set-last-fragment-space-after";
 
 export const preprocessExtendedFragments = (
   fragments: ExtendedQueryFragment[],
@@ -20,14 +21,18 @@ export const preprocessExtendedFragments = (
             .map((id) =>
               escapeIdentifier(id, config.identifierEscapeChararacter)
             )
-            .join(".")
+            .join("."),
+          fragment.spaceAfter
         ),
       ];
     }
 
     if (isExpressionQueryFragment(fragment)) {
       return preprocessExtendedFragments(
-        fragment.expression.toQueryFragments(),
+        setLastFragmentSpaceAfter(
+          fragment.expression.toQueryFragments(),
+          fragment.spaceAfter
+        ),
         config
       );
     }

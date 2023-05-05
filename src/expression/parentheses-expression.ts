@@ -10,8 +10,8 @@ export class ParenthesesExpression implements Expression {
 
   public toQueryFragments(): ExtendedQueryFragment[] {
     return [
-      textFragment("("),
-      expressionFragment(this.expression),
+      textFragment("(", false),
+      expressionFragment(this.expression, false),
       textFragment(")"),
     ];
   }

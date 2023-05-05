@@ -1,4 +1,4 @@
-import { joinTextFragments } from "./join-text-fragments";
+import { joinTextFragments } from "./utils/join-text-fragments";
 import { preprocessExtendedFragments } from "./preprocess-extended-fragments";
 import { QueryAndParams } from "./query-and-params";
 import { ExtendedQueryFragment } from "./query-fragment/query-fragment";
