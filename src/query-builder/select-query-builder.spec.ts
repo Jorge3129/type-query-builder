@@ -26,7 +26,7 @@ describe("SelectQueryBuilder", () => {
       .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
       .select(({ u }) => u.age);
 
-    const { queryString, params } = qb.buildQueryAndParams();
+    const { query: queryString, params } = qb.buildQueryAndParams();
 
     qb.getOne();
 
@@ -43,7 +43,7 @@ describe("SelectQueryBuilder", () => {
       .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
       .select(({ u }) => u.age.$plus(u.id.$times(2)).$as("g"));
 
-    const { queryString, params } = qb.buildQueryAndParams();
+    const { query: queryString, params } = qb.buildQueryAndParams();
 
     qb.getOne();
 

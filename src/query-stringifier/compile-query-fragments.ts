@@ -1,10 +1,13 @@
+import { joinTextFragments } from "./join-text-fragments";
+import { preprocessExtendedFragments } from "./preprocess-extended-fragments";
 import { QueryAndParams } from "./query-and-params";
-import { QueryFragment } from "./query-fragment/query-fragment";
+import { ExtendedQueryFragment } from "./query-fragment/query-fragment";
 import {
   TextQueryFragment,
   isTextQueryFragment,
   textFragment,
 } from "./query-fragment/text-query-fragment";
+import { ToQueryFragmentsConfig } from "./query-fragment/to-query-fragments";
 
 interface QueryAccumulator {
   paramIndex: number;
@@ -14,30 +17,23 @@ interface QueryAccumulator {
 
 export type PlaceholderGenerator = (paramIndex: number) => string;
 
-export const joinTextFragments = (
-  fragments: QueryFragment[],
-  separator: string
-) => {
-  return fragments.reduce((acc, fragment, index, { length }) => {
-    const isLast = index === length - 1;
-    const newSeparator = fragment.spaceAfter && !isLast ? separator : "";
-    const newFragment = fragment.value + newSeparator;
-
-    return acc + newFragment;
-  }, "");
-};
-
 export const compileQueryFragments = (
-  queryFragments: QueryFragment[],
+  queryFragments: ExtendedQueryFragment[],
+  config: ToQueryFragmentsConfig,
   placeholderGenerator: PlaceholderGenerator
 ): QueryAndParams => {
+  const preprocessedFragments = preprocessExtendedFragments(
+    queryFragments,
+    config
+  );
+
   const initAcc: QueryAccumulator = {
     paramIndex: 0,
     textFragments: [],
     params: [],
   };
 
-  const result = queryFragments.reduce((acc, fragment) => {
+  const result = preprocessedFragments.reduce((acc, fragment) => {
     const { paramIndex, textFragments, params } = acc;
 
     if (isTextQueryFragment(fragment)) {
@@ -59,7 +55,7 @@ export const compileQueryFragments = (
   }, initAcc);
 
   return {
-    queryString: joinTextFragments(result.textFragments, " "),
+    query: joinTextFragments(result.textFragments, " "),
     params: result.params,
   };
 };

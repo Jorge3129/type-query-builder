@@ -1,8 +1,12 @@
-import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
+import {
+  ExtendedQueryFragment,
+  QueryFragment,
+} from "../query-stringifier/query-fragment/query-fragment";
 import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
 import { Expression } from "./expression";
 import { sepBy } from "./sep-by";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
+import { expressionFragment } from "../query-stringifier/query-fragment/expression-query-fragment";
 
 export const commaSep = (args: QueryFragment[][]): QueryFragment[] => {
   const argQueryFragments = args.map((fragments, index, { length }) => {
@@ -26,8 +30,13 @@ export const setLastFragmentSpaceAfter = (
 ];
 
 export const commaSepExpressions = (
-  args: Expression[],
-  config: ToQueryFragmentsConfig
-): QueryFragment[] => {
-  return commaSep(args.map((a) => a.toQueryFragments(config)));
+  expressions: Expression[]
+): ExtendedQueryFragment[] => {
+  return expressions.flatMap((expression, index, { length }) => {
+    if (index === length - 1) {
+      return expressionFragment(expression);
+    }
+
+    return [expressionFragment(expression), textFragment(",")];
+  });
 };

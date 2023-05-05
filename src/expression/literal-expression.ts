@@ -1,4 +1,4 @@
-import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
+import { ExtendedQueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 import { paramFragment } from "../query-stringifier/query-fragment/param-query-fragment";
 import { Expression } from "./expression";
 
@@ -7,7 +7,7 @@ export class LiteralExpression<T = any> implements Expression {
 
   constructor(public readonly value: T) {}
 
-  public toQueryFragments(): QueryFragment[] {
+  public toQueryFragments(): ExtendedQueryFragment[] {
     return [paramFragment(this.value)];
   }
 }

@@ -1,7 +1,7 @@
-import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
-import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
+import { ExtendedQueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 import { Expression } from "./expression";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
+import { expressionFragment } from "../query-stringifier/query-fragment/expression-query-fragment";
 
 export class BinaryOperatorExpression implements Expression {
   public readonly type = "binaryOperator";
@@ -12,11 +12,11 @@ export class BinaryOperatorExpression implements Expression {
     public readonly right: Expression
   ) {}
 
-  public toQueryFragments(config: ToQueryFragmentsConfig): QueryFragment[] {
+  public toQueryFragments(): ExtendedQueryFragment[] {
     return [
-      ...this.left.toQueryFragments(config),
+      expressionFragment(this.left),
       textFragment(this.operator),
-      ...this.right.toQueryFragments(config),
+      expressionFragment(this.right),
     ];
   }
 }

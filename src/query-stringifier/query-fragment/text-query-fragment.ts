@@ -1,7 +1,9 @@
 import { QueryFragmentBase } from "./query-fragment";
 
+const TEXT_FRAGMENT_TYPE = "textQueryFragment";
+
 export class TextQueryFragment implements QueryFragmentBase<TextQueryFragment> {
-  public readonly type = "textQueryFragment";
+  public readonly type = TEXT_FRAGMENT_TYPE;
 
   constructor(
     public readonly value: string,
@@ -19,4 +21,4 @@ export const textFragment = (
 ): TextQueryFragment => new TextQueryFragment(value, spaceAfter);
 
 export const isTextQueryFragment = (val: unknown): val is TextQueryFragment =>
-  !!val && (val as TextQueryFragment).type === "textQueryFragment";
+  !!val && (val as TextQueryFragment).type === TEXT_FRAGMENT_TYPE;

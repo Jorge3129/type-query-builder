@@ -1,9 +1,9 @@
-import { QueryFragment } from "./query-fragment";
+import { ExtendedQueryFragment } from "./query-fragment";
 
 export interface ToQueryFragmentsConfig {
   identifierEscapeChararacter: string;
 }
 
 export interface ToQueryFragments {
-  toQueryFragments(config: ToQueryFragmentsConfig): QueryFragment[];
+  toQueryFragments(): ExtendedQueryFragment[];
 }

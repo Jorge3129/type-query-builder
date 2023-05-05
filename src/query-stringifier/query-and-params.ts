@@ -1,4 +1,4 @@
 export class QueryAndParams {
-  queryString: string;
+  query: string;
   params: any[];
 }

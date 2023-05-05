@@ -1,13 +1,8 @@
 import { createExprBuilder } from "../expression-builder/create-expression-buider";
 import { ExprBuilder } from "../expression-builder/expression-builder";
-import { AliasExpression } from "../expression/alias-expression";
-import { commaSep, commaSepExpressions } from "../expression/comma-separated";
-import { LiteralExpression } from "../expression/literal-expression";
 import { VariableExpression } from "../expression/variable-expression";
 import { defaultFunctions } from "../functions/default-functions";
 import { QueryAndParams } from "../query-stringifier/query-and-params";
-import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
-import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
 import { compileQueryFragments } from "../query-stringifier/compile-query-fragments";
 import { ClassConstructor } from "../types/class-constructor";
 import { DeepAliasable } from "../types/deep-aliasable";
@@ -17,6 +12,7 @@ import {
   getDefaultQueryBuilderOptions,
 } from "./query-builder-options";
 import { SelectQueryTree } from "./select-query-tree";
+import { SelectStatement } from "../expression/clauses/select-statement";
 
 export class SelectQueryBuilder<
   Context extends {} = {},
@@ -97,15 +93,24 @@ export class SelectQueryBuilder<
   }
 
   public build(): string {
-    return this.buildQueryAndParams().queryString;
+    return this.buildQueryAndParams().query;
   }
 
   public buildQueryAndParams(): QueryAndParams {
     const placeholderGenerator = (index: number) => `$${index + 1}`;
 
     return compileQueryFragments(
-      this.getAllQueryFragments(),
+      this.getSelectStatement().toQueryFragments(),
+      this.options,
       placeholderGenerator
+    );
+  }
+
+  private getSelectStatement(): SelectStatement {
+    return new SelectStatement(
+      this.queryTree.selectClause,
+      this.queryTree.fromClause,
+      this.queryTree.whereClause
     );
   }
 
@@ -115,48 +120,5 @@ export class SelectQueryBuilder<
 
   public async getOne(): Promise<ReturnContext> {
     return {} as any;
-  }
-
-  private getAllQueryFragments(): QueryFragment[] {
-    const select = this.getSelectQueryFragments();
-    const from = this.getFromQueryFragments();
-    const where = this.getWhereQueryFragments();
-
-    return [...select, ...from, ...where].filter((c) => !!c);
-  }
-
-  private getSelectQueryFragments(): QueryFragment[] {
-    return [
-      textFragment(`SELECT`),
-      ...commaSepExpressions(this.queryTree.selectClause, this.options),
-    ];
-  }
-
-  private getFromQueryFragments(): QueryFragment[] {
-    if (!this.queryTree.fromClause.length) {
-      return [];
-    }
-
-    return [
-      textFragment("FROM"),
-      ...commaSep(
-        this.queryTree.fromClause.map((table) =>
-          new AliasExpression(
-            new VariableExpression([table.tableName]),
-            new LiteralExpression(table.alias)
-          ).toQueryFragments(this.options)
-        )
-      ),
-    ];
-  }
-
-  private getWhereQueryFragments(): QueryFragment[] {
-    if (!this.queryTree.whereClause) {
-      return [];
-    }
-
-    const expr = this.queryTree.whereClause.toQueryFragments(this.options);
-
-    return [textFragment("WHERE"), ...expr];
   }
 }

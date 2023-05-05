@@ -1,7 +1,7 @@
-import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
-import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
+import { ExtendedQueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 import { Expression } from "./expression";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
+import { expressionFragment } from "../query-stringifier/query-fragment/expression-query-fragment";
 
 export type OperatorType = "postfix" | "prefix";
 
@@ -14,18 +14,12 @@ export class UnaryOperatorExpression implements Expression {
     public readonly operatorType: OperatorType = "prefix"
   ) {}
 
-  public toQueryFragments(config: ToQueryFragmentsConfig): QueryFragment[] {
+  public toQueryFragments(): ExtendedQueryFragment[] {
     if (this.operatorType === "prefix") {
-      return [
-        textFragment(this.operator),
-        ...this.operand.toQueryFragments(config),
-      ];
+      return [textFragment(this.operator), expressionFragment(this.operand)];
     }
 
-    return [
-      ...this.operand.toQueryFragments(config),
-      textFragment(this.operator),
-    ];
+    return [expressionFragment(this.operand), textFragment(this.operator)];
   }
 }
 

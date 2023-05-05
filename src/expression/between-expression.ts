@@ -1,7 +1,7 @@
-import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
-import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
+import { ExtendedQueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 import { Expression } from "./expression";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
+import { expressionFragment } from "../query-stringifier/query-fragment/expression-query-fragment";
 
 export class BetweenExpression<T> implements Expression {
   public readonly type = "betweenOperator";
@@ -12,13 +12,13 @@ export class BetweenExpression<T> implements Expression {
     public readonly end: Expression
   ) {}
 
-  public toQueryFragments(config: ToQueryFragmentsConfig): QueryFragment[] {
+  public toQueryFragments(): ExtendedQueryFragment[] {
     return [
-      ...this.operand.toQueryFragments(config),
+      expressionFragment(this.operand),
       textFragment("BETWEEN"),
-      ...this.start.toQueryFragments(config),
+      expressionFragment(this.start),
       textFragment("AND"),
-      ...this.end.toQueryFragments(config),
+      expressionFragment(this.end),
     ];
   }
 }

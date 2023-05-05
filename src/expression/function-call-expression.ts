@@ -1,11 +1,9 @@
-import { QueryFragment } from "../query-stringifier/query-fragment/query-fragment";
-import { ToQueryFragmentsConfig } from "../query-stringifier/query-fragment/to-query-fragments";
-import {
-  commaSepExpressions,
-  setLastFragmentSpaceAfter,
-} from "./comma-separated";
+import { ExtendedQueryFragment } from "../query-stringifier/query-fragment/query-fragment";
 import { Expression } from "./expression";
 import { textFragment } from "../query-stringifier/query-fragment/text-query-fragment";
+import { expressionFragment } from "../query-stringifier/query-fragment/expression-query-fragment";
+import { ParenthesesExpression } from "./parentheses-expression";
+import { ListExpression } from "./list-expression";
 
 export class FunctionCallExpression implements Expression {
   public readonly type = "functionCall";
@@ -15,15 +13,12 @@ export class FunctionCallExpression implements Expression {
     this.args = args;
   }
 
-  public toQueryFragments(config: ToQueryFragmentsConfig): QueryFragment[] {
-    const commaFragments = commaSepExpressions(this.args, config),
-      spacedFragments = setLastFragmentSpaceAfter(commaFragments, false);
-
+  public toQueryFragments(): ExtendedQueryFragment[] {
     return [
       textFragment(this.functionName, false),
-      textFragment("(", false),
-      ...spacedFragments,
-      textFragment(")"),
+      expressionFragment(
+        new ParenthesesExpression(new ListExpression(this.args))
+      ),
     ];
   }
 }
