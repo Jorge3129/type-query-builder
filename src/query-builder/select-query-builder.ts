@@ -64,7 +64,10 @@ export class SelectQueryBuilder<
     >]: MergeContextWithTable<Context, Alias, Model>[K];
   }> {
     const onExpression = onCondition(
-      createExprBuilder(new VariableExpression(), this.options.operators),
+      createExprBuilder(
+        new VariableExpression(),
+        this.options.dialectOptions.operators
+      ),
       defaultFunctions
     ).build();
 
@@ -80,13 +83,16 @@ export class SelectQueryBuilder<
       context: Context,
       functions: typeof defaultFunctions
     ) => ExprBuilder<boolean>
-  ): SelectQueryBuilder<Context> {
+  ): SelectQueryBuilder<Context, ReturnContext> {
     this.queryTree.whereClause = condition(
-      createExprBuilder(new VariableExpression(), this.options.operators),
+      createExprBuilder(
+        new VariableExpression(),
+        this.options.dialectOptions.operators
+      ),
       defaultFunctions
     ).build();
 
-    return this as SelectQueryBuilder<Context>;
+    return this as any;
   }
 
   public select<A extends string, T>(
@@ -111,7 +117,10 @@ export class SelectQueryBuilder<
     }
   > {
     const expr = expression(
-      createExprBuilder(new VariableExpression(), this.options.operators),
+      createExprBuilder(
+        new VariableExpression(),
+        this.options.dialectOptions.operators
+      ),
       defaultFunctions
     ).build();
 
@@ -123,7 +132,7 @@ export class SelectQueryBuilder<
   public getQueryAndParams(): QueryAndParams {
     return compileQueryFragments(
       this.getSelectStatement().toQueryFragments(),
-      this.options
+      this.options.dialectOptions
     );
   }
 
@@ -137,10 +146,12 @@ export class SelectQueryBuilder<
   }
 
   public async getMany(): Promise<ReturnContext[]> {
-    return [];
+    const { query, params } = this.getQueryAndParams();
+
+    return (await this.options.driver.query<ReturnContext>(query, params)).rows;
   }
 
-  public async getOne(): Promise<ReturnContext> {
-    return {} as any;
+  public async getOne(): Promise<ReturnContext | null> {
+    return this.getMany().then((rows) => rows.at(0) ?? null);
   }
 }

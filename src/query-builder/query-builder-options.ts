@@ -1,18 +1,16 @@
-import { MethodDictionary } from "../expression-builder/create-expression-buider";
-import { defaultOperators } from "../operators/default-operators";
+import { DialectOptions } from "../driver-options/dialect-options";
+import { DriverAdapter } from "../driver-options/driver";
 
 export type QueryBuilderOptions = {
-  operators?: MethodDictionary;
-  escapeIdentifier: (name: string) => string;
-  placeholderGenerator: (paramIndex: number) => string;
+  dialectOptions: DialectOptions;
+  driver: DriverAdapter;
 };
 
 export const getDefaultQueryBuilderOptions = (
   options: QueryBuilderOptions
 ): Required<QueryBuilderOptions> => {
   return {
-    operators: options.operators ?? defaultOperators,
-    escapeIdentifier: options.escapeIdentifier,
-    placeholderGenerator: options.placeholderGenerator,
+    dialectOptions: options.dialectOptions,
+    driver: options.driver,
   };
 };

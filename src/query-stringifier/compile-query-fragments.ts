@@ -7,7 +7,7 @@ import {
   isTextQueryFragment,
   textFragment,
 } from "./query-fragment/text-query-fragment";
-import { QueryBuilderOptions } from "../query-builder/query-builder-options";
+import { DialectOptions } from "../driver-options/dialect-options";
 
 interface QueryAccumulator {
   paramIndex: number;
@@ -17,11 +17,11 @@ interface QueryAccumulator {
 
 export const compileQueryFragments = (
   queryFragments: ExtendedQueryFragment[],
-  config: QueryBuilderOptions
+  dialectOptions: DialectOptions
 ): QueryAndParams => {
   const preprocessedFragments = preprocessExtendedFragments(
     queryFragments,
-    config
+    dialectOptions
   );
 
   const initAcc: QueryAccumulator = {
@@ -46,7 +46,7 @@ export const compileQueryFragments = (
       textFragments: [
         ...textFragments,
         textFragment(
-          config.placeholderGenerator(paramIndex),
+          dialectOptions.generatePlaceholder(paramIndex),
           fragment.spaceAfter
         ),
       ],

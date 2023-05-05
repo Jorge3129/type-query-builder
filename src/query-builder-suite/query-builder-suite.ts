@@ -4,4 +4,5 @@ import { Attribute } from "../types/attribute";
 export interface QueryBuilderSuite {
   selectQueryBuilder: () => SelectQueryBuilder;
   $litExp: <T>(value: T) => Attribute<T>;
+  disconnect: () => Promise<void>;
 }

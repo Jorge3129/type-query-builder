@@ -20,8 +20,9 @@ class Post {
   createdAt: Date;
 }
 
-const { selectQueryBuilder, $litExp } =
-  createQueryBuilderSuite(postgresOptions);
+const { selectQueryBuilder, $litExp } = await createQueryBuilderSuite(
+  postgresOptions
+);
 
 const qb = selectQueryBuilder()
   .from(User, "u")
@@ -43,7 +44,7 @@ const qb = selectQueryBuilder()
   .select(({ p }) => p.author_id)
   .select(({ p }) => p.createdAt);
 
-const result = await qb.getOne();
+const result = await qb.getMany();
 ```
 
 This will construct the following query:
@@ -61,5 +62,5 @@ type Result = {
   name: string;
   author_id: number;
   createdAt: Date;
-};
+}[];
 ```

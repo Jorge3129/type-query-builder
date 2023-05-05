@@ -1,4 +1,4 @@
-import { QueryBuilderOptions } from "../query-builder/query-builder-options";
+import { DialectOptions } from "../driver-options/dialect-options";
 import { isExpressionQueryFragment } from "./query-fragment/expression-query-fragment";
 import { isIdentifierQueryFragment } from "./query-fragment/identifier-query-fragment";
 import {
@@ -10,13 +10,13 @@ import { setLastFragmentSpaceAfter } from "./utils/set-last-fragment-space-after
 
 export const preprocessExtendedFragments = (
   fragments: ExtendedQueryFragment[],
-  config: QueryBuilderOptions
+  dialectOptions: DialectOptions
 ): QueryFragment[] => {
   return fragments.flatMap((fragment) => {
     if (isIdentifierQueryFragment(fragment)) {
       return [
         textFragment(
-          config.escapeIdentifier(fragment.name),
+          dialectOptions.escapeIdentifier(fragment.name),
           fragment.spaceAfter
         ),
       ];
@@ -28,7 +28,7 @@ export const preprocessExtendedFragments = (
           fragment.expression.toQueryFragments(),
           fragment.spaceAfter
         ),
-        config
+        dialectOptions
       );
     }
 

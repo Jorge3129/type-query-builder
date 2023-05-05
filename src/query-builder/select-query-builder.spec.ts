@@ -17,9 +17,10 @@ class Post {
   createdAt: Date;
 }
 
-describe("SelectQueryBuilder", () => {
-  const { selectQueryBuilder, $litExp } =
-    createQueryBuilderSuite(postgresOptions);
+describe("SelectQueryBuilder", async () => {
+  const { selectQueryBuilder, $litExp } = await createQueryBuilderSuite(
+    postgresOptions
+  );
 
   it("should build where clause", () => {
     const qb = selectQueryBuilder()
