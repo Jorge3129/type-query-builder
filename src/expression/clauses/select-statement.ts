@@ -1,4 +1,3 @@
-import { FromConfig } from "../../query-builder/select-query-tree";
 import { expressionFragment } from "../../query-stringifier/query-fragment/expression-query-fragment";
 import { ExtendedQueryFragment } from "../../query-stringifier/query-fragment/query-fragment";
 import { Expression } from "../expression";
@@ -11,15 +10,15 @@ export class SelectStatement implements Expression {
 
   constructor(
     public readonly selectExpressions: Expression[],
-    public readonly from: FromConfig[],
-    public readonly where?: Expression
+    public readonly fromExpressions: Expression[],
+    public readonly whereExpression?: Expression
   ) {}
 
   public toQueryFragments(): ExtendedQueryFragment[] {
     return [
       expressionFragment(new SelectClause(this.selectExpressions)),
-      expressionFragment(new FromClause(this.from)),
-      expressionFragment(new WhereClause(this.where)),
+      expressionFragment(new FromClause(this.fromExpressions)),
+      expressionFragment(new WhereClause(this.whereExpression)),
     ];
   }
 }

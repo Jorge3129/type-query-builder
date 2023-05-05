@@ -13,6 +13,8 @@ import {
 } from "./query-builder-options";
 import { SelectQueryTree } from "./select-query-tree";
 import { SelectStatement } from "../expression/clauses/select-statement";
+import { AliasExpression } from "../expression/alias-expression";
+import { LiteralExpression } from "../expression/literal-expression";
 
 export class SelectQueryBuilder<
   Context extends {} = {},
@@ -35,10 +37,12 @@ export class SelectQueryBuilder<
       Model
     >]: MergeContextWithTable<Context, Alias, Model>[K];
   }> {
-    this.queryTree.fromClause.push({
-      tableName: table.name,
-      alias,
-    });
+    this.queryTree.fromClause.push(
+      new AliasExpression(
+        new VariableExpression([table.name]),
+        new LiteralExpression(alias)
+      )
+    );
 
     return this as any;
   }
