@@ -7,7 +7,7 @@ import {
   isTextQueryFragment,
   textFragment,
 } from "./query-fragment/text-query-fragment";
-import { ToQueryFragmentsConfig } from "./query-fragment/to-query-fragments";
+import { QueryBuilderOptions } from "../query-builder/query-builder-options";
 
 interface QueryAccumulator {
   paramIndex: number;
@@ -15,12 +15,9 @@ interface QueryAccumulator {
   params: any[];
 }
 
-export type PlaceholderGenerator = (paramIndex: number) => string;
-
 export const compileQueryFragments = (
   queryFragments: ExtendedQueryFragment[],
-  config: ToQueryFragmentsConfig,
-  placeholderGenerator: PlaceholderGenerator
+  config: QueryBuilderOptions
 ): QueryAndParams => {
   const preprocessedFragments = preprocessExtendedFragments(
     queryFragments,
@@ -48,7 +45,10 @@ export const compileQueryFragments = (
       paramIndex: paramIndex + 1,
       textFragments: [
         ...textFragments,
-        textFragment(placeholderGenerator(paramIndex), fragment.spaceAfter),
+        textFragment(
+          config.placeholderGenerator(paramIndex),
+          fragment.spaceAfter
+        ),
       ],
       params: [...params, fragment.value],
     };

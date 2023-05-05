@@ -57,7 +57,7 @@ export class SelectQueryBuilder<
     return this as SelectQueryBuilder<Context>;
   }
 
-  public select<A extends string, T, I>(
+  public select<A extends string, T>(
     expression: (
       context: {
         [TblName in keyof Context]: {
@@ -88,21 +88,14 @@ export class SelectQueryBuilder<
     return this as any;
   }
 
-  public getTree() {
-    return this.queryTree;
-  }
-
   public build(): string {
     return this.buildQueryAndParams().query;
   }
 
   public buildQueryAndParams(): QueryAndParams {
-    const placeholderGenerator = (index: number) => `$${index + 1}`;
-
     return compileQueryFragments(
       this.getSelectStatement().toQueryFragments(),
-      this.options,
-      placeholderGenerator
+      this.options
     );
   }
 
