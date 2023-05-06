@@ -73,6 +73,40 @@ export class SelectQueryBuilder<
     return this as any;
   }
 
+  public leftJoin<Model, Alias extends string>(
+    table: ClassConstructor<Model>,
+    alias: Alias,
+    onCondition: (
+      context: {
+        [K in keyof (Context & Record<Alias, Table<Model>>)]: (Context &
+          Record<Alias, Table<Model>>)[K];
+      },
+      functions: typeof defaultFunctions
+    ) => ExprBuilder<boolean>
+  ): SelectQueryBuilder<{
+    [K in keyof (Context & Record<Alias, Table<Model>>)]: (Context &
+      Record<Alias, Table<Model>>)[K];
+  }> {
+    return this.join(JoinType.LEFT_JOIN, table, alias, onCondition);
+  }
+
+  public innerJoin<Model, Alias extends string>(
+    table: ClassConstructor<Model>,
+    alias: Alias,
+    onCondition: (
+      context: {
+        [K in keyof (Context & Record<Alias, Table<Model>>)]: (Context &
+          Record<Alias, Table<Model>>)[K];
+      },
+      functions: typeof defaultFunctions
+    ) => ExprBuilder<boolean>
+  ): SelectQueryBuilder<{
+    [K in keyof (Context & Record<Alias, Table<Model>>)]: (Context &
+      Record<Alias, Table<Model>>)[K];
+  }> {
+    return this.join(JoinType.INNER_JOIN, table, alias, onCondition);
+  }
+
   public where(
     condition: (
       context: Context,

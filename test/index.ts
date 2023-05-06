@@ -35,7 +35,7 @@ const main = async () => {
 
   const results = await selectQueryBuilder()
     .from(Category, "c")
-    .join(JoinType.LEFT_JOIN, Product, "p", ({ p, c }) =>
+    .leftJoin(Product, "p", ({ p, c }) =>
       p.category_number.$eq(c.category_number)
     )
     .select$(({ c }) => c.$allColumns())

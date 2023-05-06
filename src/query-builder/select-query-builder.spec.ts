@@ -63,9 +63,7 @@ describe("SelectQueryBuilder", () => {
       const qb = typeQB
         .selectQueryBuilder()
         .from(User, "u")
-        .join(JoinType.INNER_JOIN, Post, "p", ({ p, u }) =>
-          p.author_id.$eq(u.id)
-        )
+        .innerJoin(Post, "p", ({ p, u }) => p.author_id.$eq(u.id))
         .select(({ u }) => u.age);
 
       const { query } = qb.getQueryAndParams();
@@ -79,9 +77,7 @@ describe("SelectQueryBuilder", () => {
       const qb = typeQB
         .selectQueryBuilder()
         .from(User, "u")
-        .join(JoinType.INNER_JOIN, Post, "p", ({ p, u }) =>
-          p.author_id.$eq(u.id)
-        )
+        .innerJoin(Post, "p", ({ p, u }) => p.author_id.$eq(u.id))
         .select$(({ u }) => u.$allColumns())
         .select$(({ p }) => p.$allColumns());
 
