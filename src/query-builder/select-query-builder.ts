@@ -9,7 +9,6 @@ import { QueryAndParams } from "../query-stringifier/query-and-params";
 import { compileQueryFragments } from "../query-stringifier/compile-query-fragments";
 import { ClassConstructor } from "../types/class-constructor";
 import { DeepAliasable } from "../types/deep-aliasable";
-import { MergeContextWithTable, MergeContext } from "../types/merge-context";
 import {
   QueryBuilderOptions,
   getDefaultQueryBuilderOptions,
@@ -36,11 +35,8 @@ export class SelectQueryBuilder<
     table: ClassConstructor<Model>,
     alias: Alias
   ): SelectQueryBuilder<{
-    [K in keyof MergeContextWithTable<
-      Context,
-      Alias,
-      Model
-    >]: MergeContextWithTable<Context, Alias, Model>[K];
+    [K in keyof (Context & Record<Alias, Table<Model>>)]: (Context &
+      Record<Alias, Table<Model>>)[K];
   }> {
     this.queryTree.fromClause.push(tableExpression(table.name, alias));
 
@@ -53,20 +49,14 @@ export class SelectQueryBuilder<
     alias: Alias,
     onCondition: (
       context: {
-        [K in keyof MergeContextWithTable<
-          Context,
-          Alias,
-          Model
-        >]: MergeContextWithTable<Context, Alias, Model>[K];
+        [K in keyof (Context & Record<Alias, Table<Model>>)]: (Context &
+          Record<Alias, Table<Model>>)[K];
       },
       functions: typeof defaultFunctions
     ) => ExprBuilder<boolean>
   ): SelectQueryBuilder<{
-    [K in keyof MergeContextWithTable<
-      Context,
-      Alias,
-      Model
-    >]: MergeContextWithTable<Context, Alias, Model>[K];
+    [K in keyof (Context & Record<Alias, Table<Model>>)]: (Context &
+      Record<Alias, Table<Model>>)[K];
   }> {
     const onExpression = onCondition(
       createExprBuilder(
@@ -116,11 +106,8 @@ export class SelectQueryBuilder<
   ): SelectQueryBuilder<
     Context,
     {
-      [K in keyof MergeContext<ReturnContext, A, T>]: MergeContext<
-        ReturnContext,
-        A,
-        T
-      >[K];
+      [K in keyof (ReturnContext & Record<A, T>)]: (ReturnContext &
+        Record<A, T>)[K];
     }
   > {
     const expr = expression(
