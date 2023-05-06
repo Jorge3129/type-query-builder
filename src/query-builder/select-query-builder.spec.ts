@@ -87,6 +87,24 @@ describe("SelectQueryBuilder", () => {
     });
   });
 
+  it("should create GROUP BY", () => {
+    const qb = typeQB
+      .selectQueryBuilder()
+      .from(User, "u")
+      .leftJoin(Post, "p", ({ p, u }) => p.author_id.$eq(u.id))
+      .select(({ u }) => u.name)
+      .select(({ p }, { count }) => count(p.id).$as("post_count"))
+      .groupBy(({ u }) => u.name);
+
+    const { query } = qb.getQueryAndParams();
+
+    expect(query).toBe(
+      `SELECT "u"."name", COUNT("p"."id") AS "post_count" FROM "User" AS "u" ` +
+        `LEFT JOIN "Post" AS "p" ON "p"."author_id" = "u"."id" ` +
+        `GROUP BY "u"."name"`
+    );
+  });
+
   it("should correctly space function args", () => {
     const qb = typeQB
       .selectQueryBuilder()

@@ -6,4 +6,5 @@ export class SelectQueryTree {
   fromClause: Expression[] = [];
   joins: JoinClause[] = [];
   whereClause?: Expression;
+  groupByClause: Expression[] = [];
 }

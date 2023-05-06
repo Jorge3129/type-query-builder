@@ -1,7 +1,6 @@
 require("dotenv").config();
 import { PostgresConfig } from "../src/driver-options/postgres/postgres-driver";
 import { postgresOptions } from "../src/driver-options/postgres/postgres.options";
-import JoinType from "../src/expression/clauses/join-clause";
 import { createQueryBuilderSuite } from "../src/query-builder-suite/create-query-builder-suite";
 
 export class Category {
@@ -38,9 +37,10 @@ const main = async () => {
     .leftJoin(Product, "p", ({ p, c }) =>
       p.category_number.$eq(c.category_number)
     )
-    .select$(({ c }) => c.$allColumns())
-    .select$(({ p }) => p.$allColumns())
+    .select(({ c }) => c.category_name)
+    .select(({ p }, { count }) => count(p.id_product).$as("product_count"))
     .where(({ c }) => c.category_number.$gt(2))
+    .groupBy(({ c }) => c.category_name)
     .getMany();
 
   console.log(results);

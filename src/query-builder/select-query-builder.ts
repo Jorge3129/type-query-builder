@@ -4,11 +4,11 @@ import {
   SelectExpressionListBuilder,
 } from "../expression-builder/expression-builder";
 import { VariableExpression } from "../expression/variable-expression";
-import { defaultFunctions } from "../functions/default-functions";
+import { Functions, defaultFunctions } from "../functions/default-functions";
 import { QueryAndParams } from "../query-stringifier/query-and-params";
 import { compileQueryFragments } from "../query-stringifier/compile-query-fragments";
 import { ClassConstructor } from "../types/class-constructor";
-import { DeepAliasable } from "../types/deep-aliasable";
+import { DeepAliasable, DeepAliasable1 } from "../types/deep-aliasable";
 import {
   QueryBuilderOptions,
   getDefaultQueryBuilderOptions,
@@ -124,6 +124,25 @@ export class SelectQueryBuilder<
     return this as any;
   }
 
+  public groupBy(
+    expression: (
+      context: Context,
+      functions: typeof defaultFunctions
+    ) => ExprBuilder<boolean>
+  ): SelectQueryBuilder<Context, ReturnContext> {
+    this.queryTree.groupByClause.push(
+      expression(
+        createExprBuilder(
+          new VariableExpression(),
+          this.options.dialectOptions.operators
+        ),
+        defaultFunctions
+      ).build()
+    );
+
+    return this as any;
+  }
+
   public select<A extends string, T>(
     expression: (
       context: {
@@ -135,7 +154,7 @@ export class SelectQueryBuilder<
           ? AllColumns<Model>
           : Context[TblName]);
       },
-      functions: typeof defaultFunctions
+      functions: DeepAliasable1<Functions>
     ) => ExprBuilder<T, A>
   ): SelectQueryBuilder<
     Context,
@@ -149,7 +168,7 @@ export class SelectQueryBuilder<
         new VariableExpression(),
         this.options.dialectOptions.operators
       ),
-      defaultFunctions
+      defaultFunctions as any
     ).build();
 
     this.queryTree.selectClause.push(expr);
@@ -201,7 +220,8 @@ export class SelectQueryBuilder<
       this.queryTree.selectClause,
       this.queryTree.fromClause,
       this.queryTree.joins,
-      this.queryTree.whereClause
+      this.queryTree.whereClause,
+      this.queryTree.groupByClause
     );
   }
 
