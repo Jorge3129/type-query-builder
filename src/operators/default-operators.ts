@@ -1,5 +1,6 @@
 import { Expression as Ex } from "../expression/expression";
 import { Aliasable, aliasOpDict } from "./alias";
+import { AllColumns, allColumnsDict } from "./all-columns";
 import { Arithm, arithmOpDict } from "./arithm";
 import { Between, betweenOpDict } from "./between";
 import { Bool, boolOpDict } from "./bool";
@@ -18,7 +19,8 @@ export const defaultOperators: Record<
     In<any> &
     Like<any> &
     Arithm<any> &
-    Aliasable),
+    Aliasable &
+    AllColumns<any>),
   (...args: any[]) => Ex
 > = {
   ...eqOpDict,
@@ -30,4 +32,5 @@ export const defaultOperators: Record<
   ...betweenOpDict,
   ...inOpDict,
   ...aliasOpDict,
+  ...allColumnsDict,
 };

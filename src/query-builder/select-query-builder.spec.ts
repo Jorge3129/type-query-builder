@@ -1,6 +1,8 @@
 import { postgresOptions } from "../driver-options/postgres/postgres.options";
 import JoinType from "../expression/clauses/join-clause";
 import { createQueryBuilderSuite } from "../query-builder-suite/create-query-builder-suite";
+import { QueryBuilderSuite } from "../query-builder-suite/query-builder-suite";
+import { SelectQueryBuilder } from "./select-query-builder";
 
 class User {
   id: number;
@@ -17,20 +19,21 @@ class Post {
   createdAt: Date;
 }
 
-describe("SelectQueryBuilder", async () => {
-  const { selectQueryBuilder, $litExp } = await createQueryBuilderSuite(
-    postgresOptions
-  );
+describe("SelectQueryBuilder", () => {
+  let typeQB: QueryBuilderSuite;
+
+  beforeAll(async () => {
+    typeQB = await createQueryBuilderSuite(postgresOptions);
+  });
 
   it("should build where clause", () => {
-    const qb = selectQueryBuilder()
+    const qb = typeQB
+      .selectQueryBuilder()
       .from(User, "u")
-      .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
+      .where(({ u }) => u.name.$like("%foo%").$and(typeQB.$litExp(1).$eq(2)))
       .select(({ u }) => u.age);
 
     const { query: queryString, params } = qb.getQueryAndParams();
-
-    qb.getOne();
 
     expect(queryString).toBe(
       `SELECT "u"."age" FROM "User" AS "u" WHERE "u"."name" LIKE $1 AND $2 = $3`
@@ -40,14 +43,13 @@ describe("SelectQueryBuilder", async () => {
   });
 
   it("should create alias", () => {
-    const qb = selectQueryBuilder()
+    const qb = typeQB
+      .selectQueryBuilder()
       .from(User, "u")
-      .where(({ u }) => u.name.$like("%foo%").$and($litExp(1).$eq(2)))
+      .where(({ u }) => u.name.$like("%foo%").$and(typeQB.$litExp(1).$eq(2)))
       .select(({ u }) => u.age.$plus(u.id.$times(2)).$as("g"));
 
     const { query: queryString, params } = qb.getQueryAndParams();
-
-    qb.getOne();
 
     expect(queryString).toBe(
       `SELECT "u"."age" + "u"."id" * $1 AS "g" FROM "User" AS "u" WHERE "u"."name" LIKE $2 AND $3 = $4`
@@ -58,7 +60,8 @@ describe("SelectQueryBuilder", async () => {
 
   describe("JOIN", () => {
     it("should create INNER JOIN", () => {
-      const qb = selectQueryBuilder()
+      const qb = typeQB
+        .selectQueryBuilder()
         .from(User, "u")
         .join(JoinType.INNER_JOIN, Post, "p", ({ p, u }) =>
           p.author_id.$eq(u.id)
@@ -67,16 +70,30 @@ describe("SelectQueryBuilder", async () => {
 
       const { query } = qb.getQueryAndParams();
 
-      qb.getOne();
-
       expect(query).toBe(
         `SELECT "u"."age" FROM "User" AS "u" INNER JOIN "Post" AS "p" ON "p"."author_id" = "u"."id"`
+      );
+    });
+
+    it("should create all columns", () => {
+      const qb = typeQB
+        .selectQueryBuilder()
+        .from(User, "u")
+        .join(JoinType.INNER_JOIN, Post, "p", ({ p, u }) =>
+          p.author_id.$eq(u.id)
+        )
+        .select$(({ u }) => u.$allColumns())
+        .select$(({ p }) => p.$allColumns());
+
+      expect(qb.getQueryAndParams().query).toBe(
+        `SELECT "u".*, "p".* FROM "User" AS "u" INNER JOIN "Post" AS "p" ON "p"."author_id" = "u"."id"`
       );
     });
   });
 
   it("should correctly space function args", () => {
-    const qb = selectQueryBuilder()
+    const qb = typeQB
+      .selectQueryBuilder()
       .from(User, "u")
       .select(({ u }, { sum }) => sum(u.age));
 
@@ -86,7 +103,8 @@ describe("SelectQueryBuilder", async () => {
   });
 
   it("should build smth", () => {
-    const qb = selectQueryBuilder()
+    const qb = typeQB
+      .selectQueryBuilder()
       .from(User, "u")
       .from(Post, "p")
       .where(({ u, p }, { sum }) =>
@@ -98,17 +116,16 @@ describe("SelectQueryBuilder", async () => {
           .$and(p.author_id.$gt(1))
           .$or(u.id.$isNotNull())
           .$and(u.name.$between("a", "b"))
-          .$and($litExp(1).$eq(1))
+          .$and(typeQB.$litExp(1).$eq(1))
           .$and(u.name.$in("foo", "bar"))
           .$and(sum(u.age).$eq(1))
       )
-      .select(({ u }) => u.name);
+      .select(({ u }) => u.name)
+      .select$(({ u }) => u.$allColumns());
     // .select(({ p }) => p.author_id);
     // .select(({ p }) => p.createdAt);
 
     console.log(qb.getQueryAndParams().query);
-
-    qb.getOne();
 
     expect(qb.getQueryAndParams()).toBeDefined();
   });

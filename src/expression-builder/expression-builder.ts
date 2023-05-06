@@ -5,6 +5,10 @@ export interface ExprBuilder<T = any, K extends string = string> {
   key(): K;
 }
 
+export interface SelectExpressionListBuilder<ExprRecord> {
+  build(): Expression<ExprRecord>;
+}
+
 export const isExprBuilder = <T = unknown>(
   val: unknown
 ): val is ExprBuilder<T> =>

@@ -1,5 +1,8 @@
 import { createExprBuilder } from "../expression-builder/create-expression-buider";
-import { ExprBuilder } from "../expression-builder/expression-builder";
+import {
+  ExprBuilder,
+  SelectExpressionListBuilder,
+} from "../expression-builder/expression-builder";
 import { VariableExpression } from "../expression/variable-expression";
 import { defaultFunctions } from "../functions/default-functions";
 import { QueryAndParams } from "../query-stringifier/query-and-params";
@@ -15,6 +18,8 @@ import { SelectQueryTree } from "./select-query-tree";
 import { SelectStatement } from "../expression/clauses/select-statement";
 import JoinType, { JoinClause } from "../expression/clauses/join-clause";
 import { tableExpression } from "../expression/utils/table-expression";
+import { Table } from "../types/table";
+import { AllColumns } from "../operators/all-columns";
 
 export class SelectQueryBuilder<
   Context extends {} = {},
@@ -102,7 +107,9 @@ export class SelectQueryBuilder<
           [AttrName in keyof Context[TblName]]: Context[TblName][AttrName] extends ExprBuilder
             ? DeepAliasable<Context[TblName][AttrName]>
             : Context[TblName][AttrName];
-        };
+        } & (Context[TblName] extends Table<infer Model>
+          ? AllColumns<Model>
+          : Context[TblName]);
       },
       functions: typeof defaultFunctions
     ) => ExprBuilder<T, A>
@@ -114,6 +121,38 @@ export class SelectQueryBuilder<
         A,
         T
       >[K];
+    }
+  > {
+    const expr = expression(
+      createExprBuilder(
+        new VariableExpression(),
+        this.options.dialectOptions.operators
+      ),
+      defaultFunctions
+    ).build();
+
+    this.queryTree.selectClause.push(expr);
+
+    return this as any;
+  }
+
+  public select$<T>(
+    expression: (
+      context: {
+        [TblName in keyof Context]: {
+          [AttrName in keyof Context[TblName]]: Context[TblName][AttrName] extends ExprBuilder
+            ? DeepAliasable<Context[TblName][AttrName]>
+            : Context[TblName][AttrName];
+        } & (Context[TblName] extends Table<infer Model>
+          ? AllColumns<Model>
+          : Context[TblName]);
+      },
+      functions: typeof defaultFunctions
+    ) => SelectExpressionListBuilder<T>
+  ): SelectQueryBuilder<
+    Context,
+    {
+      [K in keyof (ReturnContext & T)]: (ReturnContext & T)[K];
     }
   > {
     const expr = expression(

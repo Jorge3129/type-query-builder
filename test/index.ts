@@ -6,19 +6,14 @@ import { createQueryBuilderSuite } from "../src/query-builder-suite/create-query
 
 export class Category {
   category_number: number;
-
   category_name: string;
-
   products_count?: string;
 }
 
 export class Product {
   id_product: number;
-
   category_number: number;
-
   product_name: string;
-
   characteristics: string;
 }
 
@@ -43,10 +38,8 @@ const main = async () => {
     .join(JoinType.LEFT_JOIN, Product, "p", ({ p, c }) =>
       p.category_number.$eq(c.category_number)
     )
-    .select(({ c }) => c.category_name)
-    .select(({ c }) => c.category_number)
-    .select(({ p }) => p.id_product)
-    .select(({ p }) => p.product_name)
+    .select$(({ c }) => c.$allColumns())
+    .select$(({ p }) => p.$allColumns())
     .where(({ c }) => c.category_number.$gt(2))
     .getMany();
 
