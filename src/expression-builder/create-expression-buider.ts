@@ -4,7 +4,7 @@ import { isVariableExpression } from "../expression/variable-expression";
 import { isExprBuilder } from "./expression-builder";
 
 export interface MethodDictionary {
-  [key: PropertyKey]: (...args: any[]) => Expression;
+  [key: PropertyKey]: (...args: any[]) => Expression | Expression[];
 }
 
 export function createHandler(
@@ -26,7 +26,7 @@ export function createHandler(
             ),
           ];
 
-          const newExpr: Expression = methods[prop](...builtArgs);
+          const newExpr = methods[prop](...builtArgs) as Expression;
 
           return new Proxy({}, createHandler(newExpr, methods));
         };

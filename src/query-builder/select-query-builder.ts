@@ -1,8 +1,5 @@
 import { createExprBuilder } from "../expression-builder/create-expression-buider";
-import {
-  ExprBuilder,
-  SelectExpressionListBuilder,
-} from "../expression-builder/expression-builder";
+import { ExprBuilder } from "../expression-builder/expression-builder";
 import { VariableExpression } from "../expression/variable-expression";
 import { Functions, defaultFunctions } from "../functions/default-functions";
 import { QueryAndParams } from "../query-stringifier/query-and-params";
@@ -19,6 +16,7 @@ import JoinType, { JoinClause } from "../expression/clauses/join-clause";
 import { tableExpression } from "../expression/utils/table-expression";
 import { Table } from "../types/table";
 import { AllColumns } from "../operators/all-columns";
+import { SelectExpressionListBuilder } from "../expression-builder/expression-list-builder";
 
 export class SelectQueryBuilder<
   Context extends {} = {},
@@ -177,7 +175,10 @@ export class SelectQueryBuilder<
   }
 
   public select$<T>(
-    expression: (
+    expressionBuilder: (
+      listBuilder: <Alias extends string, Model>(
+        expr: ExprBuilder<Model, Alias>
+      ) => SelectExpressionListBuilder<{ [K in Alias]: Model }>,
       context: {
         [TblName in keyof Context]: {
           [AttrName in keyof Context[TblName]]: Context[TblName][AttrName] extends ExprBuilder
@@ -187,7 +188,7 @@ export class SelectQueryBuilder<
           ? AllColumns<Model>
           : Context[TblName]);
       },
-      functions: typeof defaultFunctions
+      functions: DeepAliasable1<Functions>
     ) => SelectExpressionListBuilder<T>
   ): SelectQueryBuilder<
     Context,
@@ -195,15 +196,16 @@ export class SelectQueryBuilder<
       [K in keyof (ReturnContext & T)]: (ReturnContext & T)[K];
     }
   > {
-    const expr = expression(
+    const expressions = expressionBuilder(
+      (expr) => new SelectExpressionListBuilder().$add(expr),
       createExprBuilder(
         new VariableExpression(),
         this.options.dialectOptions.operators
       ),
-      defaultFunctions
+      defaultFunctions as any
     ).build();
 
-    this.queryTree.selectClause.push(expr);
+    this.queryTree.selectClause.push(...expressions);
 
     return this as any;
   }

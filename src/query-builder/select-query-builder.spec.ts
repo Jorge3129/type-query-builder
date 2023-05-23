@@ -1,8 +1,6 @@
 import { postgresOptions } from "../driver-options/postgres/postgres.options";
-import JoinType from "../expression/clauses/join-clause";
 import { createQueryBuilderSuite } from "../query-builder-suite/create-query-builder-suite";
 import { QueryBuilderSuite } from "../query-builder-suite/query-builder-suite";
-import { SelectQueryBuilder } from "./select-query-builder";
 
 class User {
   id: number;
@@ -78,8 +76,8 @@ describe("SelectQueryBuilder", () => {
         .selectQueryBuilder()
         .from(User, "u")
         .innerJoin(Post, "p", ({ p, u }) => p.author_id.$eq(u.id))
-        .select$(({ u }) => u.$allColumns())
-        .select$(({ p }) => p.$allColumns());
+        .select$(($, { u }) => u.$allColumns())
+        .select$(($, { p }) => p.$allColumns());
 
       expect(qb.getQueryAndParams().query).toBe(
         `SELECT "u".*, "p".* FROM "User" AS "u" INNER JOIN "Post" AS "p" ON "p"."author_id" = "u"."id"`
@@ -116,6 +114,23 @@ describe("SelectQueryBuilder", () => {
     );
   });
 
+  it("should select list", () => {
+    const qb = typeQB
+      .selectQueryBuilder()
+      .from(User, "u")
+      .select$(($, { u }, { sum }) =>
+        $(sum(u.age).$as("sum"))
+          .$add(typeQB.$litExp(1))
+          .$add(u.id)
+          .$add(u.name)
+          .$add(u.age)
+      );
+
+    expect(qb.getQueryAndParams().query).toBe(
+      `SELECT SUM("u"."age") AS "sum", $1, "u"."id", "u"."name", "u"."age" FROM "User" AS "u"`
+    );
+  });
+
   it("should build smth", () => {
     const qb = typeQB
       .selectQueryBuilder()
@@ -135,7 +150,7 @@ describe("SelectQueryBuilder", () => {
           .$and(sum(u.age).$eq(1))
       )
       .select(({ u }) => u.name)
-      .select$(({ u }) => u.$allColumns());
+      .select$((_, { u }) => u.$allColumns());
     // .select(({ p }) => p.author_id);
     // .select(({ p }) => p.createdAt);
 

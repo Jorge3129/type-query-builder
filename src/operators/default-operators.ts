@@ -21,7 +21,7 @@ export const defaultOperators: Record<
     Arithm<any> &
     Aliasable &
     AllColumns<any>),
-  (...args: any[]) => Ex
+  (...args: any[]) => Ex | Ex[]
 > = {
   ...eqOpDict,
   ...ordOpDict,
